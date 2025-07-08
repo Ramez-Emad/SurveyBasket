@@ -1,25 +1,21 @@
 using Domain.RepositoriesContracts;
+using FluentValidation;
+using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using Persistence.Repositories;
 using Service;
+using Service.Mapping;
 using ServiceAbstraction;
+using SurveyBasket.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddDependencies(builder.Configuration);
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IServiceManager, ServiceManager>();
 
 var app = builder.Build();
 
