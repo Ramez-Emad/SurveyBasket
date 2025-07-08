@@ -1,4 +1,4 @@
-﻿using Domain.Contracts;
+﻿using Domain.RepositoriesContracts;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using System;
@@ -11,7 +11,6 @@ namespace Persistence.Repositories;
 public class GenericRepository<TEntity>(ApplicationDbContext _dbContext) : IGenericRepository<TEntity>
     where TEntity : class
 {
-
     public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await _dbContext.Set<TEntity>().AsNoTracking().ToListAsync(cancellationToken);
 

@@ -1,4 +1,4 @@
-﻿using Domain.Contracts;
+﻿using Domain.RepositoriesContracts;
 using Domain.Entities;
 using Persistence.Data;
 

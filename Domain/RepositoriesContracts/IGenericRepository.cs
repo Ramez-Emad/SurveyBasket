@@ -1,4 +1,4 @@
-﻿namespace Domain.Contracts;
+﻿namespace Domain.RepositoriesContracts;
 public interface IGenericRepository<TEntity>
     where TEntity : class
 {

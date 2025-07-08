@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Contracts;
+namespace Domain.RepositoriesContracts;
 public interface IUnitOfWork
 {
     IPollRepository PollRepository { get; }

@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-namespace Domain.Contracts;
+namespace Domain.RepositoriesContracts;
 public interface IPollRepository : IGenericRepository<Poll>
 {
 
