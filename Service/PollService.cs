@@ -1,9 +1,10 @@
 ﻿using Domain.Entities;
-using Domain.Exceptions;
 using Domain.RepositoriesContracts;
 using Mapster;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Polls;
+using Shared.Abstractions;
+using Shared.Errors;
 
 public class PollService(IUnitOfWork unitOfWork) : IPollService
 {
@@ -13,14 +14,13 @@ public class PollService(IUnitOfWork unitOfWork) : IPollService
         return polls.Adapt<IEnumerable<PollResponse>>();
     }
 
-    public async Task<PollResponse?> GetPollByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> GetPollByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var poll = await unitOfWork.PollRepository.GetByIdAsync(id, cancellationToken);
 
-        if (poll is null)
-            throw new PollNotFoundException(id);
-
-        return poll.Adapt<PollResponse>();
+        return poll is null
+         ? Result.Failure<PollResponse>(PollErrors.PollNotFound)
+         : Result.Success(poll.Adapt<PollResponse>());
     }
 
     public async Task<PollResponse> CreatePollAsync(PollRequest request, CancellationToken cancellationToken = default)
@@ -31,40 +31,50 @@ public class PollService(IUnitOfWork unitOfWork) : IPollService
         return pollEntity.Adapt<PollResponse>();
     }
 
-    public async Task<PollResponse> UpdatePollAsync(int id, PollRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdatePollAsync(int id, PollRequest request, CancellationToken cancellationToken = default)
     {
         var existingPoll = await unitOfWork.PollRepository.GetByIdAsync(id, cancellationToken);
 
         if (existingPoll is null)
-            throw new PollNotFoundException(id);
+            return Result.Failure(PollErrors.PollNotFound);
 
-        request.Adapt(existingPoll);
+        existingPoll.Title = request.Title;
+        existingPoll.Summary = request.Summary;
+        existingPoll.StartsAt = request.StartsAt;
+        existingPoll.EndsAt = request.EndsAt;
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return existingPoll.Adapt<PollResponse>();
+
+        return Result.Success();
     }
 
-    public async Task<bool> DeletePollAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result> DeletePollAsync(int id, CancellationToken cancellationToken = default)
     {
         var poll = await unitOfWork.PollRepository.GetByIdAsync(id, cancellationToken);
 
         if (poll is null)
-            throw new PollNotFoundException(id);
+            return Result.Failure(PollErrors.PollNotFound);
+
 
         unitOfWork.PollRepository.Delete(poll);
-        return await unitOfWork.SaveChangesAsync(cancellationToken) > 0;
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 
-    public async Task<PollResponse> TogglePublishStatusAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result> TogglePublishStatusAsync(int id, CancellationToken cancellationToken = default)
     {
         var poll = await unitOfWork.PollRepository.GetByIdAsync(id, cancellationToken);
 
         if (poll is null)
-            throw new PollNotFoundException(id);
+            return Result.Failure(PollErrors.PollNotFound);
 
         poll.IsPublished = !poll.IsPublished;
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return poll.Adapt<PollResponse>();
+
+        return Result.Success();
     }
+
+   
 }

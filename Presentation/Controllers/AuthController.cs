@@ -1,14 +1,11 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Authentication;
-using ServiceAbstraction.Contracts.Polls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+
 
 namespace Presentation.Controllers;
 
@@ -28,7 +25,13 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
 
         var authResult = await _serviceManager.AuthService.GetTokenAsync(request.Email, request.Password, cancellationToken);
 
-        return authResult is null ? BadRequest("Invalid email/password") : Ok(authResult);
+        return authResult.IsSuccess 
+            ? Ok(authResult.Value) :
+            Problem(
+                statusCode: StatusCodes.Status400BadRequest ,
+                title: authResult.Error.Code,
+                detail: authResult.Error.Description
+                  );
     }
 
 
@@ -41,7 +44,13 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
 
         var authResult = await _serviceManager.AuthService.GetRefreshTokenAsync(request.token , request.refreshToken , cancellationToken);
 
-        return authResult is null ? BadRequest("Invalid Token") : Ok(authResult);
+        return authResult.IsSuccess
+            ? Ok(authResult.Value) :
+            Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: authResult.Error.Code,
+                detail: authResult.Error.Description
+                  );
     }
 
 
@@ -55,6 +64,13 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
 
         var result = await _serviceManager.AuthService.RevokeRefreshTokenAsync(request.token, request.refreshToken ,cancellationToken);
 
-        return result ? Ok("Refresh token revoked successfully") : BadRequest("Failed to revoke refresh token");
+
+        return result.IsSuccess 
+            ? Ok("Refresh token revoked successfully") 
+            : Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: result.Error.Code,
+                detail: result.Error.Description
+                );
     }
 }
