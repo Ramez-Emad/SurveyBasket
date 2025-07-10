@@ -3,8 +3,7 @@ using Domain.Exceptions;
 using Domain.RepositoriesContracts;
 using Mapster;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Requests;
-using ServiceAbstraction.Contracts.Responses;
+using ServiceAbstraction.Contracts.Polls;
 
 public class PollService(IUnitOfWork unitOfWork) : IPollService
 {

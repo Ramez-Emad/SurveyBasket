@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
-using ServiceAbstraction.Contracts.Requests;
 
-namespace ServiceAbstraction.Contracts.Validations;
+namespace ServiceAbstraction.Contracts.Polls;
 public class PollRequestValidator : AbstractValidator<PollRequest>
 {
     public PollRequestValidator()

@@ -1,5 +1,4 @@
-﻿using ServiceAbstraction.Contracts.Requests;
-using ServiceAbstraction.Contracts.Responses;
+﻿using ServiceAbstraction.Contracts.Polls;
 using System;
 using System.Collections.Generic;
 using System.Linq;

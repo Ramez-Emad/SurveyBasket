@@ -1,4 +1,7 @@
-﻿using Domain.RepositoriesContracts;
+﻿using Domain.Entities;
+using Domain.RepositoriesContracts;
+using Microsoft.AspNetCore.Identity;
+using Service.Authentication;
 using ServiceAbstraction;
 using System;
 using System.Collections.Generic;
@@ -7,10 +10,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Service;
-public class ServiceManager(IUnitOfWork _unitOfWork) : IServiceManager
+public class ServiceManager(IUnitOfWork _unitOfWork , UserManager<ApplicationUser> _userManager , IJwtProvider _jwtProvider) : IServiceManager
 {
 
     private IPollService? _pollService;
     public IPollService PollService => _pollService ??= new PollService(_unitOfWork);
+
+
+    private IAuthService? _authService;
+    public IAuthService AuthService => _authService ??= new AuthService(_userManager , _jwtProvider);
 
 }

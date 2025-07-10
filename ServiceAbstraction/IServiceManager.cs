@@ -8,4 +8,5 @@ namespace ServiceAbstraction;
 public interface IServiceManager
 {
     IPollService PollService { get; }
+    IAuthService AuthService { get; }
 }

@@ -1,16 +1,22 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Requests;
+using ServiceAbstraction.Contracts.Polls;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace Presentation.Controllers;
-public class PollsController(IServiceManager _serviceManager , IValidator<PollRequest> _pollRequestValidator) : ApiBaseController
+
+
+[ApiController]
+[Route("api/[controller]")]
+public class PollsController(IServiceManager _serviceManager) : ControllerBase
 {
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         var polls = await _serviceManager.PollService.GetAllPollsAsync();
@@ -33,8 +39,7 @@ public class PollsController(IServiceManager _serviceManager , IValidator<PollRe
     public async Task<IActionResult> CreatePoll([FromBody] PollRequest pollRequest , CancellationToken cancellationToken)
     {
 
-        var errorResult = await this.ValidateAsync(pollRequest, _pollRequestValidator, cancellationToken);
-
+        var errorResult = await this.ValidateAsync(pollRequest, cancellationToken);
         if (errorResult is not null)
             return errorResult;
 

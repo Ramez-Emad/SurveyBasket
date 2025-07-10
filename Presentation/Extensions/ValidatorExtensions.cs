@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Shared.ErrorModels;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,14 @@ public static class ValidatorExtensions
     public static async Task<IActionResult?> ValidateAsync<T>(
         this ControllerBase controller,
         T model,
-        IValidator<T> validator,
         CancellationToken cancellationToken = default)
     {
+
+        var validator = controller.HttpContext.RequestServices.GetService<IValidator<T>>();
+
+        if (validator is null)
+            return null; // No validation
+
         var result = await validator.ValidateAsync(model, cancellationToken);
 
         if (result.IsValid)

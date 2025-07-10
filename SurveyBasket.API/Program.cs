@@ -1,3 +1,4 @@
+using Domain.Entities;
 using Domain.RepositoriesContracts;
 using FluentValidation;
 using Mapster;
@@ -12,7 +13,6 @@ using ServiceAbstraction;
 using SurveyBasket.Web;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddDependencies(builder.Configuration);
 
@@ -29,7 +29,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
