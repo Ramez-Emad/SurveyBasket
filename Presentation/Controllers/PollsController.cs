@@ -13,10 +13,10 @@ namespace Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class PollsController(IServiceManager _serviceManager) : ControllerBase
 {
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         var polls = await _serviceManager.PollService.GetAllPollsAsync();
