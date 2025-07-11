@@ -1,13 +1,13 @@
-﻿using Shared.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
+using Shared.Abstractions;
 
 namespace Shared.Errors;
 public class PollErrors
 {
     public static readonly Error PollNotFound =
-      new("Poll.NotFound", "No poll was found with the given ID");
+      new("Poll.NotFound", "No poll was found with the given ID" , StatusCodes.Status404NotFound);
+
+
+    public static readonly Error DuplicatedPollTitle =
+        new("Poll.DuplicatedTitle", "Another poll with the same title is already exists",StatusCodes.Status409Conflict);
 }

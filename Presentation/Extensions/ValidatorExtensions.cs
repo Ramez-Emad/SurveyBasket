@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.ErrorModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,19 +28,27 @@ public static class ValidatorExtensions
         if (result.IsValid)
             return null;
 
-        var groupedErrors = result.Errors
+        // Group errors by property name
+        var errors = result.Errors
             .GroupBy(e => e.PropertyName)
-            .Select(g => new ValidationError
-            {
-                Field = g.Key,
-                Errors = g.Select(e => e.ErrorMessage)
-            });
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.ErrorMessage).ToArray()
+            );
 
-        var errorResponse = new ValidationErrorToReturn
+        var problemDetails = new ValidationProblemDetails(errors)
         {
-            Errors = groupedErrors.ToList()
+            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1", // optional custom type
+            Title = "One or more validation errors occurred.",
+            Status = StatusCodes.Status400BadRequest,
         };
 
-        return new BadRequestObjectResult(errorResponse);
+        return new ObjectResult(problemDetails)
+        {
+            StatusCode = StatusCodes.Status400BadRequest,
+            ContentTypes = { MediaTypeNames.Application.Json, "application/problem+json" }
+        };
+
+
     }
 }

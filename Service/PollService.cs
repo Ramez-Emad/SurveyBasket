@@ -23,20 +23,33 @@ public class PollService(IUnitOfWork unitOfWork) : IPollService
          : Result.Success(poll.Adapt<PollResponse>());
     }
 
-    public async Task<PollResponse> CreatePollAsync(PollRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> CreatePollAsync(PollRequest request, CancellationToken cancellationToken = default)
     {
+        var isTitleExists = await unitOfWork.PollRepository.TitleExistsAsync(request.Title, cancellationToken: cancellationToken);
+
+        if (isTitleExists)
+            return Result.Failure<PollResponse>(PollErrors.DuplicatedPollTitle);
+
         var pollEntity = request.Adapt<Poll>();
         await unitOfWork.PollRepository.AddAsync(pollEntity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return pollEntity.Adapt<PollResponse>();
+
+
+        return Result.Success(pollEntity.Adapt<PollResponse>());
     }
 
     public async Task<Result> UpdatePollAsync(int id, PollRequest request, CancellationToken cancellationToken = default)
     {
+      
         var existingPoll = await unitOfWork.PollRepository.GetByIdAsync(id, cancellationToken);
 
         if (existingPoll is null)
             return Result.Failure(PollErrors.PollNotFound);
+
+        var isTitleExists = await unitOfWork.PollRepository.TitleExistsAsync(request.Title, id , cancellationToken: cancellationToken);
+
+        if (isTitleExists)
+            return Result.Failure(PollErrors.DuplicatedPollTitle);
 
         existingPoll.Title = request.Title;
         existingPoll.Summary = request.Summary;

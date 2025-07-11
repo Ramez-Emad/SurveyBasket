@@ -1,9 +1,12 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Authentication;
+using Shared.Abstractions;
+using System;
 
 
 
@@ -19,19 +22,18 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
     public async Task<IActionResult> LoginAsync([FromBody] AuthLoginRequest request, CancellationToken cancellationToken)
     {
 
-        var errorResult = await this.ValidateAsync(request, cancellationToken);
-        if (errorResult is not null)
-            return errorResult;
+        throw new Exception("Dd");
+        var validationResult = await this.ValidateAsync(request, cancellationToken);
+
+        if (validationResult is not null)
+            return validationResult;
 
         var authResult = await _serviceManager.AuthService.GetTokenAsync(request.Email, request.Password, cancellationToken);
 
-        return authResult.IsSuccess 
-            ? Ok(authResult.Value) :
-            Problem(
-                statusCode: StatusCodes.Status400BadRequest ,
-                title: authResult.Error.Code,
-                detail: authResult.Error.Description
-                  );
+        return authResult.IsSuccess
+            ? Ok(authResult.Value)
+            : authResult.ToProblem();
+
     }
 
 
@@ -45,12 +47,8 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
         var authResult = await _serviceManager.AuthService.GetRefreshTokenAsync(request.token , request.refreshToken , cancellationToken);
 
         return authResult.IsSuccess
-            ? Ok(authResult.Value) :
-            Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: authResult.Error.Code,
-                detail: authResult.Error.Description
-                  );
+            ? Ok(authResult.Value)
+            : authResult.ToProblem();
     }
 
 
@@ -66,11 +64,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
 
 
         return result.IsSuccess 
-            ? Ok("Refresh token revoked successfully") 
-            : Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: result.Error.Code,
-                detail: result.Error.Description
-                );
+            ? Ok("Refresh token revoked successfully")
+            : result.ToProblem();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.RepositoriesContracts;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,10 +47,16 @@ public static class DependencyInjection
         services.AddMapsterConf();
 
         services.AddValidatorsFromAssemblyContaining<ServiceAbtractionReference>();
+         //   .AddFluentValidationAutoValidation();
+            
 
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IServiceManager, ServiceManager>();
+
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
+
         return services;
     }
 

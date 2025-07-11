@@ -1,15 +1,10 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Polls;
-using Shared.Abstractions;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
 
 namespace Presentation.Controllers;
 
@@ -32,12 +27,8 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
         var result = await _serviceManager.PollService.GetPollByIdAsync(id);
 
         return result.IsSuccess 
-            ? Ok(result.Value) 
-            : Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: result.Error.Code,
-                detail: result.Error.Description
-                );
+            ? Ok(result.Value)
+             : result.ToProblem();
     }
 
     [HttpPost]
@@ -48,24 +39,26 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
         if (errorResult is not null)
             return errorResult;
 
-        var newPoll = await  _serviceManager.PollService.CreatePollAsync(pollRequest, cancellationToken);
+        var result = await  _serviceManager.PollService.CreatePollAsync(pollRequest, cancellationToken);
 
-        return CreatedAtAction(nameof(Get), new { id = newPoll.Id }, newPoll);
+        return result.IsSuccess
+            ? CreatedAtAction(nameof(Get), new { id = result.Value.Id }, result.Value)
+            : result.ToProblem();
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PollRequest request,
         CancellationToken cancellationToken)
     {
+        var errorResult = await this.ValidateAsync(request, cancellationToken);
+        if (errorResult is not null)
+            return errorResult;
+
         var result = await _serviceManager.PollService.UpdatePollAsync(id, request, cancellationToken);
 
         return result.IsSuccess
             ? NoContent()
-            : Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: result.Error.Code,
-                detail: result.Error.Description
-                );
+             : result.ToProblem();
     }
 
     [HttpDelete("{id}")]
@@ -75,11 +68,7 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
 
         return result.IsSuccess
             ? NoContent()
-            : Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: result.Error.Code,
-                detail: result.Error.Description
-                );
+             : result.ToProblem();
     }
 
     [HttpPut("{id}/togglePublish")]
@@ -89,11 +78,7 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
 
         return result.IsSuccess
            ? NoContent()
-           : Problem(
-               statusCode: StatusCodes.Status404NotFound,
-               title: result.Error.Code,
-               detail: result.Error.Description
-               );
+           : result.ToProblem();
     }
 
 }

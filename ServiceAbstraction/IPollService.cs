@@ -13,7 +13,7 @@ public interface IPollService
 
     Task<Result<PollResponse>> GetPollByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<PollResponse> CreatePollAsync(PollRequest request, CancellationToken cancellationToken = default);
+    Task<Result<PollResponse>> CreatePollAsync(PollRequest request, CancellationToken cancellationToken = default);
 
     Task<Result> UpdatePollAsync(int id, PollRequest request, CancellationToken cancellationToken = default);
 
