@@ -10,6 +10,11 @@ public class UnitOfWork(ApplicationDbContext dbContext) : IUnitOfWork
     public IPollRepository PollRepository => _pollRepository ??= new PollRepository(dbContext);
     #endregion
 
+    #region QuestionRepository
+    private IQuestionRepository? _questionRepository;
+    public IQuestionRepository QuestionRepository => _questionRepository ??= new QuestionRepository(dbContext);
+    #endregion
+
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         await dbContext.SaveChangesAsync(cancellationToken);
 }

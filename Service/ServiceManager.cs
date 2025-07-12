@@ -20,4 +20,7 @@ public class ServiceManager(IUnitOfWork _unitOfWork , UserManager<ApplicationUse
     private IAuthService? _authService;
     public IAuthService AuthService => _authService ??= new AuthService(_userManager , _jwtProvider);
 
+    private IQuestionService? _questionService;
+    public IQuestionService QuestionService => _questionService ??= new QuestionService(_unitOfWork);
+
 }

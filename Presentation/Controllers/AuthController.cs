@@ -22,7 +22,6 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
     public async Task<IActionResult> LoginAsync([FromBody] AuthLoginRequest request, CancellationToken cancellationToken)
     {
 
-        throw new Exception("Dd");
         var validationResult = await this.ValidateAsync(request, cancellationToken);
 
         if (validationResult is not null)

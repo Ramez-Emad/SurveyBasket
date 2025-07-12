@@ -9,11 +9,22 @@ using System.Security.Claims;
 namespace Persistence.Data;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options , IHttpContextAccessor httpContextAccessor) : IdentityDbContext<ApplicationUser>(options) 
 {
-    public DbSet<Poll> Polls { get; set; } = null!;
+    public DbSet<Poll> Polls { get; set; }
+    public DbSet<Answer> Answers { get; set; }
 
+    public DbSet<Question> Questions { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        var cascadeFKs = modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetForeignKeys())
+            .Where(fk => !fk.IsOwnership && fk.DeleteBehavior == DeleteBehavior.Cascade);   
+
+        foreach (var fk in cascadeFKs)
+            fk.DeleteBehavior = DeleteBehavior.Restrict;
+
+
         base.OnModelCreating(modelBuilder);
     }
 

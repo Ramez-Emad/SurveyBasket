@@ -8,5 +8,6 @@ namespace Domain.RepositoriesContracts;
 public interface IUnitOfWork
 {
     IPollRepository PollRepository { get; }
+    IQuestionRepository QuestionRepository { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

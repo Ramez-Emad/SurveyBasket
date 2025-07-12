@@ -28,7 +28,6 @@ public static class ValidatorExtensions
         if (result.IsValid)
             return null;
 
-        // Group errors by property name
         var errors = result.Errors
             .GroupBy(e => e.PropertyName)
             .ToDictionary(
@@ -38,7 +37,7 @@ public static class ValidatorExtensions
 
         var problemDetails = new ValidationProblemDetails(errors)
         {
-            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1", // optional custom type
+            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
             Title = "One or more validation errors occurred.",
             Status = StatusCodes.Status400BadRequest,
         };
