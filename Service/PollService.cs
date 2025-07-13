@@ -1,6 +1,7 @@
-﻿using Domain.Entities;
-using Domain.RepositoriesContracts;
+﻿using Domain.Contracts;
+using Domain.Entities;
 using Mapster;
+using Service.Specifications;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Polls;
 using Shared.Abstractions;
@@ -89,5 +90,15 @@ public class PollService(IUnitOfWork unitOfWork) : IPollService
         return Result.Success();
     }
 
-   
+    public async Task<Result<IEnumerable<PollResponse>>> GetCurrentAsync(CancellationToken cancellationToken = default)
+    {
+        var spec = new CurrentPollsSpecification();
+
+        var polls = await unitOfWork.PollRepository.GetAllAsync(spec, cancellationToken);
+
+        var response = polls.Adapt<IEnumerable<PollResponse>>();
+
+        return Result.Success(response);
+    }
+
 }

@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Domain.RepositoriesContracts;
+using Domain.Contracts;
 using Microsoft.AspNetCore.Identity;
 using Service.Authentication;
 using ServiceAbstraction;
@@ -22,5 +22,11 @@ public class ServiceManager(IUnitOfWork _unitOfWork , UserManager<ApplicationUse
 
     private IQuestionService? _questionService;
     public IQuestionService QuestionService => _questionService ??= new QuestionService(_unitOfWork);
+
+    private IVoteService? _voteService;
+    public IVoteService VoteService => _voteService ??= new VoteService(_unitOfWork);
+
+    private IVoteAnswerService? _voteAnswerService;
+    public IVoteAnswerService VoteAnswerService => _voteAnswerService ??= new VoteAnswerService(_unitOfWork);
 
 }

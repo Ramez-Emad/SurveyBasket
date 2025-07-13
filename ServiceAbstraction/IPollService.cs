@@ -20,4 +20,6 @@ public interface IPollService
     Task<Result> TogglePublishStatusAsync(int id, CancellationToken cancellationToken = default);
 
     Task<Result> DeletePollAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<Result<IEnumerable<PollResponse>>> GetCurrentAsync(CancellationToken cancellationToken = default);
 }

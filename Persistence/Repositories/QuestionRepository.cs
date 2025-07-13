@@ -1,26 +1,25 @@
 ﻿using Domain.Entities;
-using Domain.RepositoriesContracts;
+using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
+using System.Linq.Expressions;
 
 namespace Persistence.Repositories;
 public class QuestionRepository(ApplicationDbContext dbContext) : GenericRepository<Question>(dbContext), IQuestionRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public Task<bool> ExistsAsync(string content, int pollId, int? questionId, CancellationToken cancellationToken = default)
+
+    public Task<bool> IsQuestionContentDuplicateAsync(string content, int pollId, CancellationToken cancellationToken = default)
     {
         return _dbContext.Questions
-            .AnyAsync(q => (q.Content == content) && (q.PollId == pollId) && (questionId == null || q.Id != questionId), cancellationToken);
-
+            .AnyAsync(q => (q.Content == content) && (q.PollId == pollId) , cancellationToken);
     }
 
-    public async Task<IEnumerable<Question>> GetQuestionsByPollIdAsync(int pollId, CancellationToken cancellationToken = default)
+    public Task<bool> IsQuestionContentDuplicateAsync(string content, int pollId, int questionId, CancellationToken cancellationToken = default)
     {
-        var query = _dbContext.Questions.Where(x => x.PollId == pollId).Include(q => q.Answers);
-
-        return await query.ToListAsync(cancellationToken);
-
+        return _dbContext.Questions
+             .AnyAsync(q => (q.Content == content) && (q.PollId == pollId) && (q.Id != questionId), cancellationToken);
     }
 }
 

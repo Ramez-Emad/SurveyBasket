@@ -1,5 +1,5 @@
 using Domain.Entities;
-using Domain.RepositoriesContracts;
+using Domain.Contracts;
 using FluentValidation;
 using Mapster;
 using MapsterMapper;

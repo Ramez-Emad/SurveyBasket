@@ -1,14 +1,18 @@
-﻿using Domain.Entities;
-using Domain.RepositoriesContracts;
+﻿using Domain.Contracts;
+using Domain.Entities;
 using Mapster;
+using Service.Specifications;
 using ServiceAbstraction;
+using ServiceAbstraction.Contracts.Answers;
 using ServiceAbstraction.Contracts.Questions;
 using Shared.Abstractions;
 using Shared.Errors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Service;
@@ -23,7 +27,11 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
             return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
         }
 
-        var questions = await _unitOfWork.QuestionRepository.GetQuestionsByPollIdAsync(pollId, cancellationToken);
+        var spec = new QuestionsByPollIdSpecification(pollId);
+
+        var selector = CreateQuestionResponseSelector();
+
+        var questions = await _unitOfWork.QuestionRepository.GetAllAsync(spec, selector, cancellationToken);
 
         return Result.Success(questions.Adapt<IEnumerable<QuestionResponse>>());
     }
@@ -38,7 +46,7 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
             return Result.Failure<QuestionResponse>(PollErrors.PollNotFound);
         }
 
-        var questionIsExists = await _unitOfWork.QuestionRepository.ExistsAsync(request.Content, pollId,null, cancellationToken);
+        var questionIsExists = await _unitOfWork.QuestionRepository.IsQuestionContentDuplicateAsync(request.Content, pollId, cancellationToken);
 
         if (questionIsExists)
             return Result.Failure<QuestionResponse>(QuestionErrors.DuplicatedQuestionContent);
@@ -56,8 +64,8 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
 
     public async Task<Result<QuestionResponse>> GetQuestionByIdAsync( int pollId , int id, CancellationToken cancellationToken = default)
     {
-        var question = await _unitOfWork.QuestionRepository.GetByIdAsync(id, cancellationToken ,
-            q => q.Answers );
+        var spec = new QuestionWithAnswerSpecification(id);
+        var question = await _unitOfWork.QuestionRepository.GetAsync(spec , cancellationToken);
 
         if (question is null || question.PollId != pollId)
         {
@@ -70,14 +78,15 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
 
     public async Task<Result> UpdateQuestionAsync(int pollId , int id, QuestionRequest questionRequest, CancellationToken cancellationToken = default)
     {
-        var existingQuestion = await _unitOfWork.QuestionRepository.GetByIdAsync(id, cancellationToken , q=> q.Answers);
+        var spec = new QuestionWithAnswerSpecification(id);
+        var existingQuestion = await _unitOfWork.QuestionRepository.GetAsync(spec, cancellationToken);
 
         if (existingQuestion is null || existingQuestion.PollId != pollId)
         {
             return Result.Failure<QuestionResponse>(QuestionErrors.QuestionNotFound);
         }
 
-        var questionIsExists = await _unitOfWork.QuestionRepository.ExistsAsync(questionRequest.Content, existingQuestion.PollId, existingQuestion.Id,cancellationToken);
+        var questionIsExists = await _unitOfWork.QuestionRepository.IsQuestionContentDuplicateAsync(questionRequest.Content, existingQuestion.PollId, existingQuestion.Id,cancellationToken);
 
         if (questionIsExists)
         {
@@ -119,4 +128,15 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }
+
+    private static Expression<Func<Question, QuestionResponse>> CreateQuestionResponseSelector()
+    {
+        return q => new QuestionResponse
+        (
+            q.Id,
+            q.Content,
+            q.Answers.Select(a => new AnswerResponse(a.Id, a.Content)).ToList()
+        );
+    }
+
 }

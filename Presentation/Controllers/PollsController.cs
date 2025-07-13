@@ -81,4 +81,12 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
            : result.ToProblem();
     }
 
+
+    [HttpGet("current")]
+    public async Task<IActionResult> GetCurrent(CancellationToken cancellationToken)
+    {
+        var result = await _serviceManager.PollService.GetCurrentAsync(cancellationToken);
+
+        return Ok(result.Value);
+    }
 }
