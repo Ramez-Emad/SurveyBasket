@@ -16,7 +16,7 @@ namespace Presentation.Controllers;
 [Route("api/polls/{pollId}/[controller]")]
 [ApiController]
 [Authorize]
-public class ResultsController(IResultService _resultService , UserManager<ApplicationUser> _userManager) : ControllerBase
+public class ResultsController(IResultService _resultService) : ControllerBase
 {
 
     [HttpGet("row-data")]
@@ -33,8 +33,6 @@ public class ResultsController(IResultService _resultService , UserManager<Appli
     [HttpGet("votes-per-day")]
     public async Task<IActionResult> VotesPerDay([FromRoute] int pollId, CancellationToken cancellationToken)
     {
-      
-
         var result = await _resultService.GetVotesPerDayAsync(pollId, cancellationToken);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();

@@ -1,7 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Contracts;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
