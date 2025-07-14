@@ -26,7 +26,6 @@ public class ServiceManager(IUnitOfWork _unitOfWork , UserManager<ApplicationUse
     private IVoteService? _voteService;
     public IVoteService VoteService => _voteService ??= new VoteService(_unitOfWork);
 
-    private IVoteAnswerService? _voteAnswerService;
-    public IVoteAnswerService VoteAnswerService => _voteAnswerService ??= new VoteAnswerService(_unitOfWork);
+ 
 
 }

@@ -54,6 +54,8 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IServiceManager, ServiceManager>();
 
+        services.AddScoped<IResultService, ResultService>();
+
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
 

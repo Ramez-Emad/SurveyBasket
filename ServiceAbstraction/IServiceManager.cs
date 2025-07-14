@@ -11,6 +11,5 @@ public interface IServiceManager
     IAuthService AuthService { get; }
     IQuestionService QuestionService { get; }
     IVoteService VoteService { get; }
-    IVoteAnswerService VoteAnswerService { get; }
 
 }

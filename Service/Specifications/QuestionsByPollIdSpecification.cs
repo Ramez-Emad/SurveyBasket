@@ -10,7 +10,7 @@ public class QuestionsByPollIdSpecification : BaseSpecification<Question>
 {
     public QuestionsByPollIdSpecification(int pollId)
     {
-        Criteria = q => q.PollId == pollId;
+        Criteria = q => q.PollId == pollId && q.IsActive;
         AddInclude(q => q.Answers);
     }
 }
