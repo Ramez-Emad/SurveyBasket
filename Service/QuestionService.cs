@@ -1,6 +1,7 @@
 ﻿using Domain.Contracts;
 using Domain.Entities;
 using Mapster;
+using Microsoft.Extensions.Caching.Hybrid;
 using Service.Specifications;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Answers;
@@ -16,24 +17,37 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Service;
-public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
+public class QuestionService(IUnitOfWork _unitOfWork, HybridCache hybridCache) : IQuestionService
 {
-    public  async Task<Result<IEnumerable<QuestionResponse>>> GetQuestionsAsync(int pollId, CancellationToken cancellationToken = default)
+    private readonly HybridCache _hybridCache = hybridCache;
+    private const string _cachePrefix = "AvailableQuestions";
+
+    public async Task<Result<IEnumerable<QuestionResponse>>> GetQuestionsAsync(int pollId, CancellationToken cancellationToken = default)
     {
-        var pollExists = await _unitOfWork.PollRepository.GetByIdAsync(pollId, cancellationToken);
+        //var pollExists = await _unitOfWork.PollRepository.GetByIdAsync(pollId, cancellationToken);
 
-        if (pollExists is null)
-        {
-            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
-        }
+        //if (pollExists is null)
+        //{
+        //    return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
+        //}
 
-        var spec = new QuestionsByPollIdSpecification(pollId);
+        string cacheKey = $"{_cachePrefix}-{pollId}";
 
-        var selector = CreateQuestionResponseSelector();
+        var cachedQuestions = await _hybridCache.GetOrCreateAsync
+                                    (cacheKey,
+                                    async entry =>
+                                    {
+                                        var spec = new QuestionsByPollIdSpecification(pollId);
 
-        var questions = await _unitOfWork.QuestionRepository.GetAllAsync(spec, selector, cancellationToken);
+                                        var selector = CreateQuestionResponseSelector();
 
-        return Result.Success(questions.Adapt<IEnumerable<QuestionResponse>>());
+                                        return await _unitOfWork.QuestionRepository.GetAllAsync(spec, selector, cancellationToken);
+                                    },
+                                    cancellationToken : cancellationToken
+                                    );
+
+
+        return Result.Success(cachedQuestions);
     }
 
 
@@ -51,21 +65,23 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
         if (questionIsExists)
             return Result.Failure<QuestionResponse>(QuestionErrors.DuplicatedQuestionContent);
 
-       
+
         var question = request.Adapt<Question>();
         question.PollId = pollId;
 
         await _unitOfWork.QuestionRepository.AddAsync(question, cancellationToken);
         var saveResult = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+
         return Result.Success(question.Adapt<QuestionResponse>());
 
     }
 
-    public async Task<Result<QuestionResponse>> GetQuestionByIdAsync( int pollId , int id, CancellationToken cancellationToken = default)
+    public async Task<Result<QuestionResponse>> GetQuestionByIdAsync(int pollId, int id, CancellationToken cancellationToken = default)
     {
         var spec = new QuestionWithAnswerSpecification(id);
-        var question = await _unitOfWork.QuestionRepository.GetAsync(spec , cancellationToken);
+        var question = await _unitOfWork.QuestionRepository.GetAsync(spec, cancellationToken);
 
         if (question is null || question.PollId != pollId)
         {
@@ -76,7 +92,7 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
     }
 
 
-    public async Task<Result> UpdateQuestionAsync(int pollId , int id, QuestionRequest questionRequest, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateQuestionAsync(int pollId, int id, QuestionRequest questionRequest, CancellationToken cancellationToken = default)
     {
         var spec = new QuestionWithAnswerSpecification(id);
         var existingQuestion = await _unitOfWork.QuestionRepository.GetAsync(spec, cancellationToken);
@@ -86,7 +102,7 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
             return Result.Failure<QuestionResponse>(QuestionErrors.QuestionNotFound);
         }
 
-        var questionIsExists = await _unitOfWork.QuestionRepository.IsQuestionContentDuplicateAsync(questionRequest.Content, existingQuestion.PollId, existingQuestion.Id,cancellationToken);
+        var questionIsExists = await _unitOfWork.QuestionRepository.IsQuestionContentDuplicateAsync(questionRequest.Content, existingQuestion.PollId, existingQuestion.Id, cancellationToken);
 
         if (questionIsExists)
         {
@@ -104,12 +120,15 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
 
         foreach (var answerContent in existingQuestion.Answers)
         {
-           answerContent.IsActive = questionRequest.Answers.Contains(answerContent.Content);
+            answerContent.IsActive = questionRequest.Answers.Contains(answerContent.Content);
         }
 
         _unitOfWork.QuestionRepository.Update(existingQuestion);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+
 
         return Result.Success();
     }
@@ -126,6 +145,8 @@ public class QuestionService(IUnitOfWork _unitOfWork) : IQuestionService
         question.IsActive = !question.IsActive;
         _unitOfWork.QuestionRepository.Update(question);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+
         return Result.Success();
     }
 

@@ -1,21 +1,28 @@
-using Domain.Contracts;
-using Domain.Entities;
-using FluentValidation;
-using Mapster;
-using MapsterMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Persistence.Data;
-using Persistence.Repositories;
+using Microsoft.Extensions.Caching.Hybrid;
 using Serilog;
-using Service;
-using Service.Mapping;
-using ServiceAbstraction;
 using SurveyBasket.Web;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependencies(builder.Configuration);
+
+builder.Services.AddHybridCache(options =>
+{
+    options.DefaultEntryOptions = new HybridCacheEntryOptions
+    {
+        Expiration = TimeSpan.FromSeconds(30),
+        LocalCacheExpiration = TimeSpan.FromSeconds(1),
+
+    };
+});
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnectionString");
+    options.InstanceName = "SurveyBasketSession_";
+});
+
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)

@@ -111,6 +111,13 @@ public static class DependencyInjection
                 };
             });
 
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.Password.RequiredLength = 8;
+            options.SignIn.RequireConfirmedAccount = false;
+            options.User.RequireUniqueEmail = true;
+        });
+
         return services;
     }
 
