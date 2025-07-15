@@ -1,5 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Entities;
+using Hangfire;
 using Mapster;
 using Service.Specifications;
 using ServiceAbstraction;
@@ -7,7 +8,7 @@ using ServiceAbstraction.Contracts.Polls;
 using Shared.Abstractions;
 using Shared.Errors;
 
-public class PollService(IUnitOfWork unitOfWork) : IPollService
+public class PollService(IUnitOfWork unitOfWork, INotificationService _notificationService) : IPollService
 {
     public async Task<IEnumerable<PollResponse>> GetAllPollsAsync(CancellationToken cancellationToken = default)
     {
@@ -86,6 +87,9 @@ public class PollService(IUnitOfWork unitOfWork) : IPollService
         poll.IsPublished = !poll.IsPublished;
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (poll.IsPublished && poll.StartsAt == DateOnly.FromDateTime(DateTime.UtcNow))
+            BackgroundJob.Enqueue(() => _notificationService.SendNewPollsNotification(poll.Id));
 
         return Result.Success();
     }

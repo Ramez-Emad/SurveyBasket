@@ -23,19 +23,16 @@ public class UnitOfWork(ApplicationDbContext dbContext) : IUnitOfWork
     #region VoteAnswerRepository
     private IVoteAnswerRepository? _voteAnswerRepository;
     public IVoteAnswerRepository VoteAnswerRepository => _voteAnswerRepository ??= new VoteAnswerRepository(dbContext);
+
+
+    #endregion
+
+    #region UserRepository
+    private IUserRepository? _userRepository;
+    public IUserRepository UserRepository => _userRepository ??= new UserRepository(dbContext);
     #endregion
 
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         await dbContext.SaveChangesAsync(cancellationToken);
 }
-
-
-/*
-{
-
-- Database => data Access layer -> GetAll DomainModel
-
-- Service = > DomainModel => DTO
-
-}*/

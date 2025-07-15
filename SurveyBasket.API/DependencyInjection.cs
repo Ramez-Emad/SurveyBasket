@@ -1,16 +1,21 @@
-﻿using Domain.Entities;
-using Domain.Contracts;
+﻿using Domain.Contracts;
+using Domain.Entities;
 using FluentValidation;
+using Hangfire;
+using Hangfire.SqlServer;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.Data;
 using Persistence.Repositories;
 using Service;
 using Service.Authentication;
+using Service.Email;
 using Service.Mapping;
 using ServiceAbstraction;
 using System.Text;
@@ -23,6 +28,8 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddControllers();
+
+        services.AddHangfire(configuration);
 
         services.AddCors(options =>
             options.AddDefaultPolicy(builder =>
@@ -45,14 +52,17 @@ public static class DependencyInjection
 
         services.AddMapsterConf();
 
-        services.AddValidatorsFromAssemblyContaining<ServiceAbtractionReference>();
-         //   .AddFluentValidationAutoValidation();
-            
+        services.AddValidatorsFromAssemblyContaining<ServiceAbtractionAssemblyReference>();
+        //   .AddFluentValidationAutoValidation();
 
+        services.Configure<MailSettings>(
+                        configuration.GetSection(MailSettings.SectionName));
+
+        services.AddScoped<IEmailSender, EmailService>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IServiceManager, ServiceManager>();
-
+        services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IResultService, ResultService>();
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -74,7 +84,8 @@ public static class DependencyInjection
     private static IServiceCollection AddAuthConfig(this IServiceCollection services , IConfiguration configuration)
     {
         services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
         services.AddSingleton<IJwtProvider, JwtProvider>();
 
@@ -121,4 +132,18 @@ public static class DependencyInjection
         return services;
     }
 
+
+    private static IServiceCollection AddHangfire(this IServiceCollection services, IConfiguration confg)
+    {
+        services.AddHangfire(configuration => configuration
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(confg.GetConnectionString("HangfireConnection")));
+
+        services.AddHangfireServer();
+
+
+        return services;
+    }
 }

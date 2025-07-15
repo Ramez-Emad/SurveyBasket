@@ -1,7 +1,10 @@
+using Hangfire;
+using HangfireBasicAuthenticationFilter;
 using Microsoft.Extensions.Caching.Hybrid;
 using Serilog;
+using ServiceAbstraction;
 using SurveyBasket.Web;
-using StackExchange.Redis;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +39,30 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json" , "v1"));
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
 }
 
 app.UseSerilogRequestLogging();
 
+app.UseHangfireDashboard("/jobs", new DashboardOptions
+{
+    Authorization =
+    [
+        new HangfireCustomBasicAuthenticationFilter
+        {
+            User = app.Configuration.GetValue<string>("HangfireSettings:Username"),
+            Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
+        }
+    ],
+    DashboardTitle = "Survey Basket Dashboard"
+    //IsReadOnlyFunc = (DashboardContext conext) => true
+});
+
+var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+using var scope = scopeFactory.CreateScope();
+var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+RecurringJob.AddOrUpdate("SendNewPollsNotification", () => notificationService.SendNewPollsNotification(null), Cron.Daily);
 
 app.UseHttpsRedirection();
 

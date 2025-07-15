@@ -5,6 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceAbstraction;
-public class ServiceAbtractionReference
+public class ServiceAbtractionAssemblyReference
 {
 }

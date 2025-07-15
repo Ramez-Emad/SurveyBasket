@@ -12,5 +12,7 @@ public interface IUnitOfWork
     IVoteRepository VoteRepository { get; }
     IVoteAnswerRepository VoteAnswerRepository { get; }
 
+    IUserRepository UserRepository { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

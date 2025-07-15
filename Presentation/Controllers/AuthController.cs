@@ -51,7 +51,6 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
     }
 
 
-
     [HttpPut("revoke-refresh-token")]
     public async Task<IActionResult> RevokeRefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
     {
@@ -66,4 +65,50 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
             ? Ok("Refresh token revoked successfully")
             : result.ToProblem();
     }
+
+
+    [HttpPost("register")]
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request, CancellationToken cancellationToken)
+    {
+        var validationResult = await this.ValidateAsync(request, cancellationToken);
+        if (validationResult is not null)
+            return validationResult;
+
+        var result = await _serviceManager.AuthService.RegisterUserAsync(request, cancellationToken);
+
+        return result.IsSuccess
+            ? Ok()
+            : result.ToProblem();
+    }
+
+    [HttpPost("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request, CancellationToken cancellationToken)
+    {
+        var validationResult = await this.ValidateAsync(request, cancellationToken);
+        if (validationResult is not null)
+            return validationResult;
+
+        var result = await _serviceManager.AuthService.ConfirmEmailAsync(request);
+
+        return result.IsSuccess 
+            ? Ok() 
+            : result.ToProblem();
+    }
+
+    [HttpPost("resend-confirmation-email")]
+    public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest request, CancellationToken cancellationToken)
+    {
+        var validationResult = await this.ValidateAsync(request, cancellationToken);
+        if (validationResult is not null)
+            return validationResult;
+
+
+        var result = await _serviceManager.AuthService.ResendConfirmationEmailAsync(request);
+
+        return result.IsSuccess 
+            ? Ok() 
+            : result.ToProblem();
+    }
+
+
 }
