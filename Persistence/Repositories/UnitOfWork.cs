@@ -27,11 +27,17 @@ public class UnitOfWork(ApplicationDbContext dbContext) : IUnitOfWork
 
     #endregion
 
+
+
     #region UserRepository
     private IUserRepository? _userRepository;
     public IUserRepository UserRepository => _userRepository ??= new UserRepository(dbContext);
     #endregion
 
+
+
+    private IRoleClaimRepository? _roleClaimRepository;
+    public IRoleClaimRepository RoleClaimRepository => _roleClaimRepository ??= new RoleClaimRepository(dbContext);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
         await dbContext.SaveChangesAsync(cancellationToken);
