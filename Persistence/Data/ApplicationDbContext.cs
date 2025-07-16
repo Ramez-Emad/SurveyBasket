@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 
 namespace Persistence.Data;
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options , IHttpContextAccessor httpContextAccessor) : IdentityDbContext<ApplicationUser>(options) 
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options , IHttpContextAccessor httpContextAccessor) : IdentityDbContext<ApplicationUser , ApplicationRole ,  string>(options) 
 {
     public DbSet<Poll> Polls { get; set; }
     public DbSet<Answer> Answers { get; set; }

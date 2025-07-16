@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ServiceAbstraction;
+﻿namespace ServiceAbstraction;
 public interface IServiceManager
 {
     IPollService PollService { get; }
     IAuthService AuthService { get; }
     IQuestionService QuestionService { get; }
     IVoteService VoteService { get; }
+
+    IUserService UserService { get; }
 
 }

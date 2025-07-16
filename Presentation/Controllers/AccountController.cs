@@ -1,0 +1,54 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Presentation.Extensions;
+using ServiceAbstraction;
+using ServiceAbstraction.Contracts.Users;
+using System.Threading;
+
+namespace Presentation.Controllers;
+
+[Route("me")]
+[ApiController]
+[Authorize]
+public class AccountController(IServiceManager serviceManager) : ControllerBase
+{
+
+    [HttpGet("")]
+    public async Task<IActionResult> Info()
+    {
+        var result = await serviceManager.UserService.GetProfileAsync(User.GetUserId()!);
+
+        return Ok(result.Value);
+    }
+
+    [HttpPut("info")]
+    public async Task<IActionResult> Info([FromBody] UpdateProfileRequest request, CancellationToken cancellationToken)
+    {
+        var errorsResult = await this.ValidateAsync(request, cancellationToken);
+
+        if (errorsResult is not null)
+            return errorsResult;
+
+        await serviceManager.UserService.UpdateProfileAsync(User.GetUserId()!, request);
+
+        return NoContent();
+    }
+
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request , CancellationToken cancellationToken)
+    {
+        var errorsResult = await this.ValidateAsync(request, cancellationToken);
+
+        if (errorsResult is not null)
+            return errorsResult;
+
+        var result = await serviceManager.UserService.ChangePasswordAsync(User.GetUserId()!, request);
+
+        return result.IsSuccess 
+            ? NoContent() 
+            : result.ToProblem();
+    }
+
+
+
+}
