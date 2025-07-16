@@ -95,6 +95,8 @@ public class AuthService(
         if (user.IsDisabled)
             return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
 
+        if(user.LockoutEnd > DateTime.UtcNow)
+            return Result.Failure<AuthResponse>(UserErrors.LockedUser);
 
         if (user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken && x.IsActive) is not { } userRefreshToken)
             return Result.Failure<AuthResponse>(UserErrors.InvalidRefreshToken);
