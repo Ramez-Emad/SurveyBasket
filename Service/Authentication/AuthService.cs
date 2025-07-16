@@ -23,6 +23,7 @@ namespace Service.Authentication;
 public class AuthService(
         IUserService userService,
         UserManager<ApplicationUser> _userManager,
+        SignInManager<ApplicationUser> _signInManager,
         IJwtProvider _jwtProvider,
         ILogger<AuthService> logger,
         IHttpContextAccessor _httpContextAccessor,
@@ -39,36 +40,45 @@ public class AuthService(
         if (user.IsDisabled)
             return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
 
-        if (!await _userManager.CheckPasswordAsync(user, password))
-            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
+        var result = await _signInManager.PasswordSignInAsync(user, password, false, true);
 
-        var (roles, permissions) = await userService.GetUserRolesAndPermissions(user, cancellationToken);
-
-        var (token, expiresIn) = _jwtProvider.GenerateToken(user , roles , permissions);
-
-        var refreshToken = GenerateRefreshToken();
-        var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
-
-        user.RefreshTokens.Add(new RefreshToken
+        if (result.Succeeded)
         {
-            Token = refreshToken,
-            ExpiresOn = refreshTokenExpiration
-        });
+            var (roles, permissions) = await userService.GetUserRolesAndPermissions(user, cancellationToken);
 
-        await _userManager.UpdateAsync(user);
+            var (token, expiresIn) = _jwtProvider.GenerateToken(user, roles, permissions);
 
-        var response = new AuthResponse(
-            Id: user.Id,
-            Email: user.Email,
-            FirstName: user.FirstName,
-            LastName: user.LastName,
-            Token: token,
-            ExpiresIn: expiresIn * 60,
-            RefreshToken: refreshToken,
-            RefreshTokenExpiration: refreshTokenExpiration
-        );
+            var refreshToken = GenerateRefreshToken();
+            var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
-        return Result.Success(response);
+            user.RefreshTokens.Add(new RefreshToken
+            {
+                Token = refreshToken,
+                ExpiresOn = refreshTokenExpiration
+            });
+
+            await _userManager.UpdateAsync(user);
+
+            var response = new AuthResponse(
+                Id: user.Id,
+                Email: user.Email,
+                FirstName: user.FirstName,
+                LastName: user.LastName,
+                Token: token,
+                ExpiresIn: expiresIn * 60,
+                RefreshToken: refreshToken,
+                RefreshTokenExpiration: refreshTokenExpiration
+            );
+            return Result.Success(response);
+        }
+
+        var error = result.IsNotAllowed 
+                    ? UserErrors.EmailNotConfirmed 
+                    : result.IsLockedOut 
+                    ? UserErrors.LockedUser
+                    : UserErrors.InvalidCredentials;
+
+        return Result.Failure<AuthResponse>(error);
     }
 
     
