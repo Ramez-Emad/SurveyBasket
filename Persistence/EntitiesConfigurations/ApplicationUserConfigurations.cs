@@ -1,11 +1,8 @@
 ﻿using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shared.Abstractions.Consts;
 
 namespace Persistence.EntitiesConfigurations;
 public class ApplicationUserConfigurations : IEntityTypeConfiguration<ApplicationUser>
@@ -19,5 +16,26 @@ public class ApplicationUserConfigurations : IEntityTypeConfiguration<Applicatio
                 .ToTable("RefreshTokens")
                 .WithOwner()
                 .HasForeignKey("UserId");
+
+
+        // var passwordHasher = new PasswordHasher<ApplicationUser>();
+
+
+        builder.HasData(new ApplicationUser
+        {
+            Id = DefaultUsers.AdminId,
+            FirstName = "Survey Basket",
+            LastName = "Admin",
+            UserName = DefaultUsers.AdminEmail,
+            NormalizedUserName = DefaultUsers.AdminEmail.ToUpper(),
+            Email = DefaultUsers.AdminEmail,
+            NormalizedEmail = DefaultUsers.AdminEmail.ToUpper(),
+            SecurityStamp = DefaultUsers.AdminSecurityStamp,
+            ConcurrencyStamp = DefaultUsers.AdminConcurrencyStamp,
+            EmailConfirmed = true,
+            //  PasswordHash = passwordHasher.HashPassword(null!, DefaultUsers.AdminPassword)
+            PasswordHash = "AQAAAAIAAYagAAAAEJcTV40WGWVogEyODYye68D6YanFu0GIDjHeryO+0Vzei9dXbT3Ycbgrr8htH9gYnw=="
+
+        });
     }
 }

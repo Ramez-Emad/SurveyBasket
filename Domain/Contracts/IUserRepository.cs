@@ -8,4 +8,5 @@ using System.Threading.Tasks;
 namespace Domain.Contracts;
 public interface IUserRepository : IGenericRepository<ApplicationUser>
 {
-}
+    Task<IEnumerable<string>> GetPermissionFromRoles(IEnumerable<string> roles, CancellationToken cancellationToken);
+ }

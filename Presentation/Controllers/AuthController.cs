@@ -1,6 +1,8 @@
-﻿using FluentValidation;
+﻿using Domain.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
@@ -16,7 +18,7 @@ namespace Presentation.Controllers;
 [ApiController]
 [Route("[controller]")]
 
-public class AuthController(IServiceManager _serviceManager ) : ControllerBase
+public class AuthController(IAuthService _authService ) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> LoginAsync([FromBody] AuthLoginRequest request, CancellationToken cancellationToken)
@@ -27,7 +29,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
         if (validationResult is not null)
             return validationResult;
 
-        var authResult = await _serviceManager.AuthService.GetTokenAsync(request.Email, request.Password, cancellationToken);
+        var authResult = await _authService.GetTokenAsync(request.Email, request.Password, cancellationToken);
 
         return authResult.IsSuccess
             ? Ok(authResult.Value)
@@ -43,7 +45,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
         if (errorResult is not null)
             return errorResult;
 
-        var authResult = await _serviceManager.AuthService.GetRefreshTokenAsync(request.token , request.refreshToken , cancellationToken);
+        var authResult = await _authService.GetRefreshTokenAsync(request.token , request.refreshToken , cancellationToken);
 
         return authResult.IsSuccess
             ? Ok(authResult.Value)
@@ -58,7 +60,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
         if (errorResult is not null)
             return errorResult;
 
-        var result = await _serviceManager.AuthService.RevokeRefreshTokenAsync(request.token, request.refreshToken ,cancellationToken);
+        var result = await _authService.RevokeRefreshTokenAsync(request.token, request.refreshToken ,cancellationToken);
 
 
         return result.IsSuccess 
@@ -74,7 +76,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
         if (validationResult is not null)
             return validationResult;
 
-        var result = await _serviceManager.AuthService.RegisterUserAsync(request, cancellationToken);
+        var result = await _authService.RegisterUserAsync(request, cancellationToken);
 
         return result.IsSuccess
             ? Ok()
@@ -88,7 +90,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
         if (validationResult is not null)
             return validationResult;
 
-        var result = await _serviceManager.AuthService.ConfirmEmailAsync(request);
+        var result = await _authService.ConfirmEmailAsync(request);
 
         return result.IsSuccess 
             ? Ok() 
@@ -103,7 +105,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
             return validationResult;
 
 
-        var result = await _serviceManager.AuthService.ResendConfirmationEmailAsync(request);
+        var result = await _authService.ResendConfirmationEmailAsync(request);
 
         return result.IsSuccess 
             ? Ok() 
@@ -113,7 +115,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
     [HttpPost("forget-password")]
     public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
     {
-        var result = await _serviceManager.AuthService.SendResetPasswordCodeAsync(request.Email);
+        var result = await _authService.SendResetPasswordCodeAsync(request.Email);
 
         return result.IsSuccess 
             ? Ok() 
@@ -123,7 +125,7 @@ public class AuthController(IServiceManager _serviceManager ) : ControllerBase
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
-        var result = await _serviceManager.AuthService.ResetPasswordAsync(request);
+        var result = await _authService.ResetPasswordAsync(request);
 
         return result.IsSuccess 
             ? Ok() 

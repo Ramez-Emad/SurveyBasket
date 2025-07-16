@@ -1,22 +1,27 @@
-﻿using Domain.Entities;
+﻿using Domain.Contracts;
+using Domain.Entities;
 using Hangfire;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Service.Email;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Authentication;
 using Shared.Abstractions;
+using Shared.Abstractions.Consts;
 using Shared.Errors;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Service.Authentication;
 public class AuthService(
+        IUserService userService,
         UserManager<ApplicationUser> _userManager,
         IJwtProvider _jwtProvider,
         ILogger<AuthService> logger,
@@ -34,7 +39,9 @@ public class AuthService(
         if (!await _userManager.CheckPasswordAsync(user, password))
             return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
-        var (token, expiresIn) = _jwtProvider.GenerateToken(user);
+        var (roles, permissions) = await userService.GetUserRolesAndPermissions(user, cancellationToken);
+
+        var (token, expiresIn) = _jwtProvider.GenerateToken(user , roles , permissions);
 
         var refreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
@@ -79,8 +86,10 @@ public class AuthService(
 
         userRefreshToken.RevokedOn = DateTime.UtcNow;
 
+        var (roles, permisssions) = await userService.GetUserRolesAndPermissions(user, cancellationToken);
 
-        var (newToken, expiresIn) = _jwtProvider.GenerateToken(user);
+
+        var (newToken, expiresIn) = _jwtProvider.GenerateToken(user , roles, permisssions);
         var newRefreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
@@ -196,8 +205,12 @@ public class AuthService(
         var result = await _userManager.ConfirmEmailAsync(user, code);
 
         if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, DefaultRoles.Member);
+
             return Result.Success();
 
+        }
         var error = result.Errors.First();
 
         return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
@@ -307,5 +320,7 @@ public class AuthService(
 
         await Task.CompletedTask;
     }
+
+   
 }
 

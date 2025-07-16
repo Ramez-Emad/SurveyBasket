@@ -5,12 +5,14 @@ using Hangfire;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.Data;
 using Persistence.Repositories;
+using Presentation.Filters.Authentication;
 using Service;
 using Service.Authentication;
 using Service.Email;
@@ -56,12 +58,17 @@ public static class DependencyInjection
         services.Configure<MailSettings>(
                         configuration.GetSection(MailSettings.SectionName));
 
-        services.AddScoped<IEmailSender, EmailService>();
-
+       
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddScoped<IServiceManager, ServiceManager>();
+
+        services.AddScoped<IEmailSender, EmailService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IResultService, ResultService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IPollService , PollService>();
+        services.AddScoped<IQuestionService, QuestionService>();
+        services.AddScoped<IVoteService, VoteService>();
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
@@ -96,6 +103,8 @@ public static class DependencyInjection
 
 
         services.AddSingleton<IJwtProvider, JwtProvider>();
+        services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+        services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         services.AddAuthentication(options =>
         {

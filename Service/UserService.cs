@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Contracts;
+using Domain.Entities;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +9,7 @@ using ServiceAbstraction.Contracts.Users;
 using Shared.Abstractions;
 
 namespace Service;
-public class UserService(UserManager<ApplicationUser> userManager) : IUserService
+public class UserService(UserManager<ApplicationUser> userManager , IUnitOfWork unitOfWork) : IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
@@ -58,4 +59,12 @@ public class UserService(UserManager<ApplicationUser> userManager) : IUserServic
         return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
     }
 
+    public async Task<(IEnumerable<string>, IEnumerable<string>)> GetUserRolesAndPermissions(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        var userRoles = await _userManager.GetRolesAsync(user);
+
+        var userPermissions = await unitOfWork.UserRepository.GetPermissionFromRoles(userRoles, cancellationToken);
+
+        return (userRoles, userPermissions);
+    }
 }

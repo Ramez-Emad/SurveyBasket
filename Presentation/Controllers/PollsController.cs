@@ -3,28 +3,31 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
+using Presentation.Filters.Authentication;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Polls;
+using Shared.Abstractions.Consts;
 
 namespace Presentation.Controllers;
 
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
-public class PollsController(IServiceManager _serviceManager) : ControllerBase
+public class PollsController(IPollService _pollService) : ControllerBase
 {
     [HttpGet]
+    [HasPermission(Permissions.GetPolls)]
     public async Task<IActionResult> GetAll()
     {
-        var polls = await _serviceManager.PollService.GetAllPollsAsync();
+        var polls = await _pollService.GetAllPollsAsync();
         return Ok(polls);
     }
 
     [HttpGet("{id}")]
+    [HasPermission(Permissions.GetPolls)]
     public async Task<IActionResult> Get(int id)
     {
-        var result = await _serviceManager.PollService.GetPollByIdAsync(id);
+        var result = await _pollService.GetPollByIdAsync(id);
 
         return result.IsSuccess 
             ? Ok(result.Value)
@@ -32,6 +35,7 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
     }
 
     [HttpPost]
+    [HasPermission(Permissions.AddPolls)]
     public async Task<IActionResult> CreatePoll([FromBody] PollRequest pollRequest , CancellationToken cancellationToken)
     {
 
@@ -39,7 +43,7 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
         if (errorResult is not null)
             return errorResult;
 
-        var result = await  _serviceManager.PollService.CreatePollAsync(pollRequest, cancellationToken);
+        var result = await _pollService.CreatePollAsync(pollRequest, cancellationToken);
 
         return result.IsSuccess
             ? CreatedAtAction(nameof(Get), new { id = result.Value.Id }, result.Value)
@@ -47,6 +51,7 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [HasPermission(Permissions.UpdatePolls)]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PollRequest request,
         CancellationToken cancellationToken)
     {
@@ -54,7 +59,7 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
         if (errorResult is not null)
             return errorResult;
 
-        var result = await _serviceManager.PollService.UpdatePollAsync(id, request, cancellationToken);
+        var result = await _pollService.UpdatePollAsync(id, request, cancellationToken);
 
         return result.IsSuccess
             ? NoContent()
@@ -62,9 +67,10 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [HasPermission(Permissions.DeletePolls)]
     public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _serviceManager.PollService.DeletePollAsync(id, cancellationToken);
+        var result = await _pollService.DeletePollAsync(id, cancellationToken);
 
         return result.IsSuccess
             ? NoContent()
@@ -72,9 +78,10 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
     }
 
     [HttpPut("{id}/togglePublish")]
+    [HasPermission(Permissions.UpdatePolls)]
     public async Task<IActionResult> TogglePublish([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _serviceManager.PollService.TogglePublishStatusAsync(id, cancellationToken);
+        var result = await _pollService.TogglePublishStatusAsync(id, cancellationToken);
 
         return result.IsSuccess
            ? NoContent()
@@ -83,9 +90,10 @@ public class PollsController(IServiceManager _serviceManager) : ControllerBase
 
 
     [HttpGet("current")]
+    [Authorize(Roles = DefaultRoles.Member)]
     public async Task<IActionResult> GetCurrent(CancellationToken cancellationToken)
     {
-        var result = await _serviceManager.PollService.GetCurrentAsync(cancellationToken);
+        var result = await _pollService.GetCurrentAsync(cancellationToken);
 
         return Ok(result.Value);
     }

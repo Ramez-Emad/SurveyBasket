@@ -10,13 +10,13 @@ namespace Presentation.Controllers;
 [Route("me")]
 [ApiController]
 [Authorize]
-public class AccountController(IServiceManager serviceManager) : ControllerBase
+public class AccountController(IUserService _userService) : ControllerBase
 {
 
     [HttpGet("")]
     public async Task<IActionResult> Info()
     {
-        var result = await serviceManager.UserService.GetProfileAsync(User.GetUserId()!);
+        var result = await _userService.GetProfileAsync(User.GetUserId()!);
 
         return Ok(result.Value);
     }
@@ -29,7 +29,7 @@ public class AccountController(IServiceManager serviceManager) : ControllerBase
         if (errorsResult is not null)
             return errorsResult;
 
-        await serviceManager.UserService.UpdateProfileAsync(User.GetUserId()!, request);
+        await _userService.UpdateProfileAsync(User.GetUserId()!, request);
 
         return NoContent();
     }
@@ -42,7 +42,7 @@ public class AccountController(IServiceManager serviceManager) : ControllerBase
         if (errorsResult is not null)
             return errorsResult;
 
-        var result = await serviceManager.UserService.ChangePasswordAsync(User.GetUserId()!, request);
+        var result = await _userService.ChangePasswordAsync(User.GetUserId()!, request);
 
         return result.IsSuccess 
             ? NoContent() 

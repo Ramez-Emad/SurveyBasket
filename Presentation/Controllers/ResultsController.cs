@@ -1,14 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
+using Presentation.Filters.Authentication;
 using ServiceAbstraction;
+using Shared.Abstractions.Consts;
 
 namespace Presentation.Controllers;
 
 
 [Route("api/polls/{pollId}/[controller]")]
 [ApiController]
-[Authorize]
+[HasPermission(Permissions.Results)]
 public class ResultsController(IResultService _resultService) : ControllerBase
 {
 

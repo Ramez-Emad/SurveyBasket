@@ -20,11 +20,11 @@ builder.Services.AddHybridCache(options =>
     };
 });
 
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisConnectionString");
-    options.InstanceName = "SurveyBasketSession_";
-});
+//builder.Services.AddStackExchangeRedisCache(options =>
+//{
+//    options.Configuration = builder.Configuration.GetConnectionString("RedisConnectionString");
+//    options.InstanceName = "SurveyBasketSession_";
+//});
 
 
 builder.Host.UseSerilog((context, configuration) =>

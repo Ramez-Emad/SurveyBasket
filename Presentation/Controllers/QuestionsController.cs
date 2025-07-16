@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
+using Presentation.Filters.Authentication;
 using ServiceAbstraction;
 using ServiceAbstraction.Contracts.Questions;
+using Shared.Abstractions.Consts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,13 +18,14 @@ namespace Presentation.Controllers;
 [ApiController]
 [Route("api/polls/{pollId}/[controller]")]
 [Authorize]
-public class QuestionsController(IServiceManager _serviceManager) : ControllerBase
+public class QuestionsController(IQuestionService _questionService ) : ControllerBase
 {
 
     [HttpGet("")]
+    [HasPermission(Permissions.GetQuestions)]
     public async Task<IActionResult> GetAll(int pollId, CancellationToken cancellationToken)
     {
-        var result = await _serviceManager.QuestionService.GetQuestionsAsync(pollId, cancellationToken);
+        var result = await _questionService.GetQuestionsAsync(pollId, cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)
@@ -30,9 +33,10 @@ public class QuestionsController(IServiceManager _serviceManager) : ControllerBa
     }
 
     [HttpGet("{id}")]
+    [HasPermission(Permissions.GetQuestions)]
     public async Task<IActionResult> Get( [FromRoute]int pollId, [FromRoute] int id , CancellationToken cancellationToken)
     {
-         var result = await _serviceManager.QuestionService.GetQuestionByIdAsync(pollId , id, cancellationToken );
+         var result = await _questionService.GetQuestionByIdAsync(pollId , id, cancellationToken );
 
         return result.IsSuccess
             ? Ok(result.Value)
@@ -41,13 +45,14 @@ public class QuestionsController(IServiceManager _serviceManager) : ControllerBa
 
 
     [HttpPost("")]
+    [HasPermission(Permissions.AddQuestions)]
     public async Task<IActionResult> Create([FromRoute] int pollId, [FromBody] QuestionRequest questionRequest, CancellationToken cancellationToken)
     {
         var errorResult = await this.ValidateAsync(questionRequest, cancellationToken);
         if (errorResult is not null)
             return errorResult;
 
-        var result = await _serviceManager.QuestionService.CreateQuestionAsync(pollId, questionRequest, cancellationToken);
+        var result = await _questionService.CreateQuestionAsync(pollId, questionRequest, cancellationToken);
 
         return result.IsSuccess
             ? CreatedAtAction(nameof(Get), new { pollId, id = result.Value.Id }, result.Value)
@@ -56,13 +61,14 @@ public class QuestionsController(IServiceManager _serviceManager) : ControllerBa
 
 
     [HttpPut("{id}")]
+    [HasPermission(Permissions.UpdateQuestions)]
     public async Task<IActionResult> Update([FromRoute] int pollId, [FromRoute] int id, [FromBody] QuestionRequest questionRequest, CancellationToken cancellationToken)
     {
         var errorResult = await this.ValidateAsync(questionRequest, cancellationToken);
         if (errorResult is not null)
             return errorResult;
 
-        var result = await _serviceManager.QuestionService.UpdateQuestionAsync(pollId , id, questionRequest, cancellationToken);
+        var result = await _questionService.UpdateQuestionAsync(pollId , id, questionRequest, cancellationToken);
 
         return result.IsSuccess
             ? NoContent()
@@ -71,9 +77,10 @@ public class QuestionsController(IServiceManager _serviceManager) : ControllerBa
 
 
     [HttpPut("{id}/toggleStatus")]
+    [HasPermission(Permissions.UpdateQuestions)]
     public async Task<IActionResult> ToggleStatus([FromRoute] int pollId, [FromRoute] int id, CancellationToken cancellationToken)
     {
-        var result = await _serviceManager.QuestionService.ToggleStatusAsync(pollId, id, cancellationToken);
+        var result = await _questionService.ToggleStatusAsync(pollId, id, cancellationToken);
 
         return result.IsSuccess 
                 ? NoContent() 

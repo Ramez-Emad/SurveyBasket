@@ -6,19 +6,24 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace Service.Authentication;
 public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
     private readonly JwtOptions _options = options.Value;
-    public (string token, int expiresIn) GenerateToken(ApplicationUser applicationUser)
+    public (string token, int expiresIn) GenerateToken(ApplicationUser applicationUser ,
+        IEnumerable<string> roles , IEnumerable<string> permissions)
     {
         Claim[] claims = [
             new (JwtRegisteredClaimNames.Sub, applicationUser.Id),
             new (JwtRegisteredClaimNames.Email, applicationUser.Email!),
             new (JwtRegisteredClaimNames.GivenName, applicationUser.FirstName),
             new (JwtRegisteredClaimNames.FamilyName, applicationUser.LastName),
-            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new (nameof(roles) , JsonSerializer.Serialize(roles) , JsonClaimValueTypes.JsonArray ),
+            new (nameof(permissions) , JsonSerializer.Serialize(permissions) , JsonClaimValueTypes.JsonArray ),
+
         ];
 
 
