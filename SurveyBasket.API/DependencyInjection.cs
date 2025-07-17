@@ -19,6 +19,7 @@ using Service.Email;
 using Service.Mapping;
 using ServiceAbstraction;
 using Shared;
+using SurveyBasket.Web.Health;
 using System.Text;
 
 namespace SurveyBasket.Web;
@@ -74,6 +75,15 @@ public static class DependencyInjection
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
+
+        services.AddHealthChecks()
+                .AddDbContextCheck<ApplicationDbContext>("Database")
+                .AddHangfire(options =>
+                {
+                    options.MinimumAvailableServers = 1;
+                })
+                .AddCheck<MailProviderHealthCheck>(name: "mail service");
+
 
         return services;
     }
