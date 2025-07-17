@@ -1,5 +1,5 @@
-﻿using ServiceAbstraction.Contracts.Questions;
-using ServiceAbstraction.Contracts.Votes;
+﻿using Shared.Contracts.Questions;
+using Shared.Contracts.Votes;
 using Shared.Abstractions;
 using System;
 using System.Collections.Generic;

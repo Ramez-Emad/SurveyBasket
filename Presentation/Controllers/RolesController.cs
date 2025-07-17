@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using Presentation.Filters.Authentication;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Roles;
+using Shared.Contracts.Roles;
 using Shared.Abstractions.Consts;
 
 namespace Presentation.Controllers;

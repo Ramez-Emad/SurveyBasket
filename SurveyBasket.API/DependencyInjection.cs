@@ -18,6 +18,7 @@ using Service.Authentication;
 using Service.Email;
 using Service.Mapping;
 using ServiceAbstraction;
+using Shared;
 using System.Text;
 
 namespace SurveyBasket.Web;
@@ -52,7 +53,7 @@ public static class DependencyInjection
 
         services.AddMapsterConf();
 
-        services.AddValidatorsFromAssemblyContaining<ServiceAbtractionAssemblyReference>();
+        services.AddValidatorsFromAssemblyContaining<FluentValidationAssemblyReference>();
         //   .AddFluentValidationAutoValidation();
 
         services.Configure<MailSettings>(

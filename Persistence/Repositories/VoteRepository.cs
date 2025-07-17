@@ -2,7 +2,7 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
-using ServiceAbstraction.Contracts.Results;
+using Shared.Contracts.Results;
 using Shared.Abstractions;
 using Shared.Errors;
 using System;

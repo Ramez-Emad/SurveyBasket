@@ -4,7 +4,7 @@ using Hangfire;
 using Mapster;
 using Service.Specifications;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Polls;
+using Shared.Contracts.Polls;
 using Shared.Abstractions;
 using Shared.Errors;
 

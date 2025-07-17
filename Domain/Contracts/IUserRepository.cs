@@ -1,12 +1,15 @@
 ﻿using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shared.Contracts.Users;
+
+
 
 namespace Domain.Contracts;
 public interface IUserRepository : IGenericRepository<ApplicationUser>
 {
     Task<IEnumerable<string>> GetPermissionFromRoles(IEnumerable<string> roles, CancellationToken cancellationToken);
- }
+
+    Task<IEnumerable<UserResponse>> GetUserWithRolesAsync(CancellationToken cancellationToken);
+
+    Task DeleteAllRoles(string id, CancellationToken cancellationToken);
+
+}

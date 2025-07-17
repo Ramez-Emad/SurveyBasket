@@ -13,6 +13,5 @@ public class ApplicationUser : IdentityUser
 
     public bool IsDisabled { get; set; } = false;
 
-    public List<RefreshToken> RefreshTokens { get; set; } = new();
-
+    public List<RefreshToken> RefreshTokens { get; set; } = [];
 }

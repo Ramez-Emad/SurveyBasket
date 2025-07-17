@@ -2,7 +2,7 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
-using ServiceAbstraction.Contracts.Questions;
+using Shared.Contracts.Questions;
 using Shared.Abstractions;
 using Shared.Errors;
 

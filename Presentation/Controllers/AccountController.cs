@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Users;
+using Shared.Contracts.Users;
 using System.Threading;
 
 namespace Presentation.Controllers;

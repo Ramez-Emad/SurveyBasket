@@ -1,14 +1,8 @@
-﻿using Domain.Entities;
-using FluentValidation;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Authentication;
-using Shared.Abstractions;
-using System;
+using Shared.Contracts.Authentication;
 
 
 
@@ -18,8 +12,9 @@ namespace Presentation.Controllers;
 [ApiController]
 [Route("[controller]")]
 
-public class AuthController(IAuthService _authService ) : ControllerBase
+public class AuthController(IAuthService _authService) : ControllerBase
 {
+   
     [HttpPost]
     public async Task<IActionResult> LoginAsync([FromBody] AuthLoginRequest request, CancellationToken cancellationToken)
     {
@@ -83,6 +78,7 @@ public class AuthController(IAuthService _authService ) : ControllerBase
             : result.ToProblem();
     }
 
+
     [HttpPost("confirm-email")]
     public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request, CancellationToken cancellationToken)
     {
@@ -96,6 +92,7 @@ public class AuthController(IAuthService _authService ) : ControllerBase
             ? Ok() 
             : result.ToProblem();
     }
+
 
     [HttpPost("resend-confirmation-email")]
     public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest request, CancellationToken cancellationToken)
@@ -111,6 +108,7 @@ public class AuthController(IAuthService _authService ) : ControllerBase
             ? Ok() 
             : result.ToProblem();
     }
+
 
     [HttpPost("forget-password")]
     public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)

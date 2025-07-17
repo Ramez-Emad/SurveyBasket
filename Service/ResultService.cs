@@ -2,8 +2,9 @@
 using Domain.Entities;
 using Service.Specifications;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Results;
+using Shared.Contracts.Results;
 using Shared.Abstractions;
+using Shared.Contracts.Results;
 using Shared.Errors;
 using System;
 using System.Collections.Generic;

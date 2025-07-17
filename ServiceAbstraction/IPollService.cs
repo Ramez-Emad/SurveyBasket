@@ -1,4 +1,4 @@
-﻿using ServiceAbstraction.Contracts.Polls;
+﻿using Shared.Contracts.Polls;
 using Shared.Abstractions;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
-﻿using ServiceAbstraction.Contracts.Results;
+﻿using Shared.Contracts.Results;
 using Shared.Abstractions;
+using Shared.Contracts.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;

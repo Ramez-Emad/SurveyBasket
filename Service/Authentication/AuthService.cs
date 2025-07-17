@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Service.Email;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Authentication;
+using Shared.Contracts.Authentication;
 using Shared.Abstractions;
 using Shared.Abstractions.Consts;
 using Shared.Errors;

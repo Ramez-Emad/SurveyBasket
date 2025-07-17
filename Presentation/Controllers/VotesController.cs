@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
-using ServiceAbstraction.Contracts.Votes;
+using Shared.Contracts.Votes;
 using Shared.Abstractions.Consts;
 
 namespace Presentation.Controllers;

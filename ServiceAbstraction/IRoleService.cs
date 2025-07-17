@@ -1,5 +1,5 @@
-﻿using ServiceAbstraction.Contracts.Roles;
-using Shared.Abstractions;
+﻿using Shared.Abstractions;
+using Shared.Contracts.Roles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
