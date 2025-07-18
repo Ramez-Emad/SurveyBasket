@@ -10,15 +10,15 @@ namespace Presentation.Controllers;
 [ApiController]
 [Route("api/polls/{pollId}/vote")]
 [Authorize(Roles = DefaultRoles.Member)]
-public class VotesController(IVoteService _voteService ) : ControllerBase
+public class VotesController(IVoteService _voteService , IQuestionService _questionService ) : ControllerBase
 {
     [HttpGet("")]
-    public async Task<IActionResult> start([FromRoute] int pollId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Start([FromRoute] int pollId, CancellationToken cancellationToken)
     {
 
         var userId = User.GetUserId();
 
-        var result = await _voteService.GetQuestionsAsync(pollId, userId!, cancellationToken);
+        var result = await _questionService.GetAvailableQuestionsAsync(pollId, userId!, cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)

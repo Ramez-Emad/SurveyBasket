@@ -38,6 +38,11 @@ public class GenericRepository<TEntity>(ApplicationDbContext _dbContext) : IGene
 
         return await query.ToListAsync(cancellationToken);
     }
+
+
+    public async Task<int> CountAsync(ISpecifications<TEntity> specifications) => await SpecificationEvaluator<TEntity>.GetQuery(
+        _dbContext.Set<TEntity>(), specifications).CountAsync();
+
     #endregion
 
     #region Get

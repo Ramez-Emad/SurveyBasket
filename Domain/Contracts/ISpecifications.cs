@@ -12,5 +12,11 @@ public interface ISpecifications<TEntity> where TEntity : class
 
     List<Expression<Func<TEntity, object>>> Includes { get; }
 
+    Expression<Func<TEntity, object>>? OrderBy { get; }
 
+    Expression<Func<TEntity, object>>? OrderByDescending { get; }
+
+    int Take { get; }
+    int Skip { get; }
+    bool IsPaginated { get; }
 }

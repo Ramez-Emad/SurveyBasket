@@ -4,18 +4,13 @@ using Mapster;
 using Microsoft.Extensions.Caching.Hybrid;
 using Service.Specifications;
 using ServiceAbstraction;
+using Shared;
+using Shared.Abstractions;
 using Shared.Contracts.Answers;
 using Shared.Contracts.Questions;
-using Shared.Abstractions;
-using Shared.Contracts.Questions;
 using Shared.Errors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Shared.Shared;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Service;
 public class QuestionService(IUnitOfWork _unitOfWork, HybridCache hybridCache) : IQuestionService
@@ -23,14 +18,51 @@ public class QuestionService(IUnitOfWork _unitOfWork, HybridCache hybridCache) :
     private readonly HybridCache _hybridCache = hybridCache;
     private const string _cachePrefix = "AvailableQuestions";
 
-    public async Task<Result<IEnumerable<QuestionResponse>>> GetQuestionsAsync(int pollId, CancellationToken cancellationToken = default)
+    public async Task<Result<PaginatedResult<QuestionResponse>>> GetQuestionsAsync(int pollId, QuestionQueryParams queryParams , CancellationToken cancellationToken = default)
     {
-        //var pollExists = await _unitOfWork.PollRepository.GetByIdAsync(pollId, cancellationToken);
+        var pollExists = await _unitOfWork.PollRepository.GetByIdAsync(pollId, cancellationToken);
 
-        //if (pollExists is null)
-        //{
-        //    return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
-        //}
+        if (pollExists is null)
+        {
+            return Result.Failure<PaginatedResult<QuestionResponse>>(PollErrors.PollNotFound);
+        }
+
+
+        var selector = CreateQuestionResponseSelector();
+
+        var questionResponses = await _unitOfWork.QuestionRepository.GetAllAsync(new QuestionsByPollIdSpecification(pollId, queryParams), selector, cancellationToken);
+
+
+        var totalCount = await _unitOfWork.QuestionRepository.CountAsync(new QuestionsByPollIdSpecificationCount(pollId, queryParams));
+
+
+        var response = new PaginatedResult<QuestionResponse>(
+                                                                queryParams.PageIndex,
+                                                                queryParams.PageSize,
+                                                                totalCount,
+                                                                questionResponses);
+
+                                                
+
+        return Result.Success(response);
+    }
+
+
+    public async Task<Result<IEnumerable<QuestionResponse>>> GetAvailableQuestionsAsync(int pollId, string userId, CancellationToken cancellationToken)
+    {
+        var pollIsExists = await _unitOfWork.PollRepository.IsPollAvailable(pollId, cancellationToken);
+
+        if (!pollIsExists)
+            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
+
+
+        var userHasVoted = await _unitOfWork.VoteRepository.UserHasVotedAsync(userId, pollId, cancellationToken);
+
+        if (userHasVoted)
+            return Result.Failure<IEnumerable<QuestionResponse>>(VoteErrors.DuplicatedVote);
+
+        
+
 
         string cacheKey = $"{_cachePrefix}-{pollId}";
 
@@ -40,17 +72,24 @@ public class QuestionService(IUnitOfWork _unitOfWork, HybridCache hybridCache) :
                                     {
                                         var spec = new QuestionsByPollIdSpecification(pollId);
 
-                                        var selector = CreateQuestionResponseSelector();
+
+                                        Expression<Func<Question, QuestionResponse>> selector = q => new QuestionResponse(
+                                            q.Id,
+                                            q.Content,
+                                            q.Answers.Where(a => a.IsActive).Select(a =>
+                                                new AnswerResponse(a.Id, a.Content)
+                                            )
+                                        );
 
                                         return await _unitOfWork.QuestionRepository.GetAllAsync(spec, selector, cancellationToken);
                                     },
-                                    cancellationToken : cancellationToken
+                                    cancellationToken: cancellationToken
                                     );
 
-
         return Result.Success(cachedQuestions);
-    }
 
+
+    }
 
     public async Task<Result<QuestionResponse>> CreateQuestionAsync(int pollId, QuestionRequest request, CancellationToken cancellationToken = default)
     {

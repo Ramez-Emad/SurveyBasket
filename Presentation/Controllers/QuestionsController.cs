@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using Presentation.Filters.Authentication;
 using ServiceAbstraction;
+using Shared;
 using Shared.Abstractions.Consts;
 using Shared.Contracts.Questions;
 using System;
@@ -23,9 +24,10 @@ public class QuestionsController(IQuestionService _questionService ) : Controlle
 
     [HttpGet("")]
     [HasPermission(Permissions.GetQuestions)]
-    public async Task<IActionResult> GetAll(int pollId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(int pollId, [FromQuery] QuestionQueryParams queryParams , CancellationToken cancellationToken)
     {
-        var result = await _questionService.GetQuestionsAsync(pollId, cancellationToken);
+
+        var result = await _questionService.GetQuestionsAsync(pollId, queryParams, cancellationToken);
 
         return result.IsSuccess
             ? Ok(result.Value)

@@ -18,6 +18,8 @@ public interface IGenericRepository<TEntity>
         Expression<Func<TEntity, TResult>> selector,
         CancellationToken cancellationToken = default);
 
+    Task<int> CountAsync(ISpecifications<TEntity> specifications);
+
 
     #endregion
 
@@ -27,6 +29,8 @@ public interface IGenericRepository<TEntity>
     public Task<TEntity?> GetAsync(ISpecifications<TEntity> spec, CancellationToken cancellationToken = default);
 
     #endregion
+
+
 
     Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     void Update(TEntity entity);

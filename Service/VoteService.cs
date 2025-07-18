@@ -19,37 +19,7 @@ namespace Service;
 public class VoteService(IUnitOfWork _unitOfWork) : IVoteService
 {
 
-    public async Task<Result<IEnumerable<QuestionResponse>>> GetQuestionsAsync(int pollId, string userId, CancellationToken cancellationToken)
-    {
-         var pollIsExists = await _unitOfWork.PollRepository.IsPollAvailable(pollId, cancellationToken);
-
-        if (!pollIsExists)
-            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
-
-        
-        var userHasVoted = await _unitOfWork.VoteRepository.UserHasVotedAsync(userId, pollId, cancellationToken);
-
-        if (userHasVoted)
-            return Result.Failure<IEnumerable<QuestionResponse>>(VoteErrors.DuplicatedVote);
-
-        var spec = new QuestionsByPollIdSpecification(pollId);
-
-
-        Expression<Func<Question, QuestionResponse>> selector = q => new QuestionResponse(
-            q.Id,
-            q.Content,
-            q.Answers.Where(a => a.IsActive).Select(a =>
-                new AnswerResponse(a.Id, a.Content)
-            )
-        );
-
-        var questions = await _unitOfWork.QuestionRepository.GetAllAsync(spec, selector, cancellationToken);
-
-        return Result.Success(questions);
-
-
-    }
-
+  
     public  async Task<Result> AddAsync(int pollId, string userId, VoteRequest request, CancellationToken cancellationToken)
     {
 

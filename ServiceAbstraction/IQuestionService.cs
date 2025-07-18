@@ -1,16 +1,15 @@
-﻿using Shared.Contracts.Questions;
+﻿using Shared;
 using Shared.Abstractions;
 using Shared.Contracts.Questions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shared.Shared;
 
 namespace ServiceAbstraction;
 public interface IQuestionService
 {
-    Task<Result<IEnumerable<QuestionResponse>>> GetQuestionsAsync(int pollId, CancellationToken cancellationToken = default);
+    Task<Result<PaginatedResult<QuestionResponse>>> GetQuestionsAsync(int pollId, QuestionQueryParams queryParams , CancellationToken cancellationToken = default);
+
+    Task<Result<IEnumerable<QuestionResponse>>> GetAvailableQuestionsAsync(int pollId, string userId, CancellationToken cancellationToken);
+
 
     Task<Result<QuestionResponse>> CreateQuestionAsync(int pollId, QuestionRequest request, CancellationToken cancellationToken = default);
 

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 namespace ServiceAbstraction;
 public interface IVoteService
 {
-    Task<Result<IEnumerable<QuestionResponse>>> GetQuestionsAsync(int pollId , string userId , CancellationToken cancellationToken);
 
     Task<Result> AddAsync(int pollId, string userId, VoteRequest request, CancellationToken cancellationToken);
 }
