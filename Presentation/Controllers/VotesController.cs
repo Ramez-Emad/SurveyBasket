@@ -4,12 +4,14 @@ using Presentation.Extensions;
 using ServiceAbstraction;
 using Shared.Contracts.Votes;
 using Shared.Abstractions.Consts;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Presentation.Controllers;
 
 [ApiController]
 [Route("api/polls/{pollId}/vote")]
 [Authorize(Roles = DefaultRoles.Member)]
+[EnableRateLimiting(RateLimiters.Concurrency)]
 public class VotesController(IVoteService _voteService , IQuestionService _questionService ) : ControllerBase
 {
     [HttpGet("")]

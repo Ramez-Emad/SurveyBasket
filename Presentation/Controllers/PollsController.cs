@@ -7,12 +7,14 @@ using Presentation.Filters.Authentication;
 using ServiceAbstraction;
 using Shared.Contracts.Polls;
 using Shared.Abstractions.Consts;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Presentation.Controllers;
 
 
 [ApiController]
 [Route("api/[controller]")]
+
 public class PollsController(IPollService _pollService) : ControllerBase
 {
     [HttpGet]
