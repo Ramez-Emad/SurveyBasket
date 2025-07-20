@@ -1,12 +1,7 @@
 ﻿using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistence.Repositories;
 public class GenericRepository<TEntity>(ApplicationDbContext _dbContext) : IGenericRepository<TEntity>
@@ -16,9 +11,9 @@ public class GenericRepository<TEntity>(ApplicationDbContext _dbContext) : IGene
     #region GetALl
     public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
             => await _dbContext.Set<TEntity>().ToListAsync(cancellationToken);
-    
 
-    public async Task<IEnumerable<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken = default) 
+
+    public async Task<IEnumerable<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, CancellationToken cancellationToken = default)
         => await _dbContext.Set<TEntity>()
             .Select(selector)
             .ToListAsync(cancellationToken);
@@ -66,6 +61,6 @@ public class GenericRepository<TEntity>(ApplicationDbContext _dbContext) : IGene
     public void Update(TEntity entity) =>
           _dbContext.Set<TEntity>().Update(entity);
 
-  
+
 
 }

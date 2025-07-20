@@ -12,13 +12,13 @@ using Shared.Errors;
 //using Persistence.Data;
 
 namespace Service;
-public class UserService(UserManager<ApplicationUser> userManager , IRoleService  _roleService, IUnitOfWork unitOfWork) : IUserService
+public class UserService(UserManager<ApplicationUser> userManager, IRoleService _roleService, IUnitOfWork unitOfWork) : IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager = userManager;
 
     public async Task<IEnumerable<UserResponse>> GetAllAsync(CancellationToken cancellationToken)
     {
-       
+
         return await unitOfWork.UserRepository.GetUserWithRolesAsync(cancellationToken);
     }
 
@@ -86,7 +86,7 @@ public class UserService(UserManager<ApplicationUser> userManager , IRoleService
 
         if (result.Succeeded)
         {
-            await unitOfWork.UserRepository.DeleteAllRoles(user.Id,cancellationToken);
+            await unitOfWork.UserRepository.DeleteAllRoles(user.Id, cancellationToken);
 
             await _userManager.AddToRolesAsync(user, request.Roles);
 

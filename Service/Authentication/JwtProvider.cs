@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ServiceAbstraction;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -12,8 +11,8 @@ namespace Service.Authentication;
 public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
     private readonly JwtOptions _options = options.Value;
-    public (string token, int expiresIn) GenerateToken(ApplicationUser applicationUser ,
-        IEnumerable<string> roles , IEnumerable<string> permissions)
+    public (string token, int expiresIn) GenerateToken(ApplicationUser applicationUser,
+        IEnumerable<string> roles, IEnumerable<string> permissions)
     {
         Claim[] claims = [
             new (JwtRegisteredClaimNames.Sub, applicationUser.Id),
@@ -31,14 +30,14 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
-      
+
         var jwtSecurityToken = new JwtSecurityToken(
             issuer: _options.Issuer,
             audience: _options.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes),
             signingCredentials: signingCredentials
-        );  
+        );
 
         return (
             new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),

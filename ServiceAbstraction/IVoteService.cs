@@ -1,11 +1,5 @@
-﻿using Shared.Contracts.Questions;
+﻿using Shared.Abstractions;
 using Shared.Contracts.Votes;
-using Shared.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceAbstraction;
 public interface IVoteService

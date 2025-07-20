@@ -1,8 +1,7 @@
-﻿using Domain.Entities;
-using Domain.Contracts;
+﻿using Domain.Contracts;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
-using System.Linq.Expressions;
 
 namespace Persistence.Repositories;
 public class QuestionRepository(ApplicationDbContext dbContext) : GenericRepository<Question>(dbContext), IQuestionRepository
@@ -13,7 +12,7 @@ public class QuestionRepository(ApplicationDbContext dbContext) : GenericReposit
     public Task<bool> IsQuestionContentDuplicateAsync(string content, int pollId, CancellationToken cancellationToken = default)
     {
         return _dbContext.Questions
-            .AnyAsync(q => (q.Content == content) && (q.PollId == pollId) , cancellationToken);
+            .AnyAsync(q => (q.Content == content) && (q.PollId == pollId), cancellationToken);
     }
 
     public Task<bool> IsQuestionContentDuplicateAsync(string content, int pollId, int questionId, CancellationToken cancellationToken = default)

@@ -1,13 +1,11 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using Presentation.Filters.Authentication;
 using ServiceAbstraction;
-using Shared.Contracts.Polls;
 using Shared.Abstractions.Consts;
-using Microsoft.AspNetCore.RateLimiting;
+using Shared.Contracts.Polls;
 
 namespace Presentation.Controllers;
 
@@ -31,14 +29,14 @@ public class PollsController(IPollService _pollService) : ControllerBase
     {
         var result = await _pollService.GetPollByIdAsync(id);
 
-        return result.IsSuccess 
+        return result.IsSuccess
             ? Ok(result.Value)
              : result.ToProblem();
     }
 
     [HttpPost]
     [HasPermission(Permissions.AddPolls)]
-    public async Task<IActionResult> CreatePoll([FromBody] PollRequest pollRequest , CancellationToken cancellationToken)
+    public async Task<IActionResult> CreatePoll([FromBody] PollRequest pollRequest, CancellationToken cancellationToken)
     {
 
         var errorResult = await this.ValidateAsync(pollRequest, cancellationToken);
@@ -79,7 +77,7 @@ public class PollsController(IPollService _pollService) : ControllerBase
              : result.ToProblem();
     }
 
-    [HttpPut("{id}/togglePublish")]
+    [HttpPut("{id}/toggle-publish")]
     [HasPermission(Permissions.UpdatePolls)]
     public async Task<IActionResult> TogglePublish([FromRoute] int id, CancellationToken cancellationToken)
     {

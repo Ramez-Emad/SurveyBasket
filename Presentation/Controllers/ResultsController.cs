@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using Presentation.Filters.Authentication;
 using ServiceAbstraction;
@@ -19,8 +18,8 @@ public class ResultsController(IResultService _resultService) : ControllerBase
     {
         var result = await _resultService.GetPollVotesAsync(pollId, cancellationToken);
 
-        return result.IsSuccess 
-            ? Ok(result.Value) 
+        return result.IsSuccess
+            ? Ok(result.Value)
             : result.ToProblem();
     }
 

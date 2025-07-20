@@ -13,7 +13,7 @@ public class MappingConfigurations : IRegister
             .Map(dest => dest.Answers, src => src.Answers.Select(a => new Answer { Content = a }));
 
         config.NewConfig<RegisterRequest, ApplicationUser>()
-           .Map(dest => dest.UserName , src => src.Email);
+           .Map(dest => dest.UserName, src => src.Email);
 
         config.NewConfig<CreateUserRequest, ApplicationUser>()
            .Map(dest => dest.UserName, src => src.Email)

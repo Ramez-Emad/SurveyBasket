@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using Presentation.Filters.Authentication;
 using ServiceAbstraction;
-using Shared.Contracts.Roles;
 using Shared.Abstractions.Consts;
+using Shared.Contracts.Roles;
 
 namespace Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RolesController(IRoleService _roleService ) : ControllerBase
+public class RolesController(IRoleService _roleService) : ControllerBase
 {
 
     [HttpGet("")]
@@ -27,8 +26,8 @@ public class RolesController(IRoleService _roleService ) : ControllerBase
     {
         var result = await _roleService.GetAsync(id);
 
-        return result.IsSuccess 
-            ? Ok(result.Value) 
+        return result.IsSuccess
+            ? Ok(result.Value)
             : result.ToProblem();
     }
 
@@ -44,8 +43,8 @@ public class RolesController(IRoleService _roleService ) : ControllerBase
 
         var result = await _roleService.AddAsync(request);
 
-        return result.IsSuccess 
-            ? CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value) 
+        return result.IsSuccess
+            ? CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value)
             : result.ToProblem();
     }
 
@@ -61,8 +60,8 @@ public class RolesController(IRoleService _roleService ) : ControllerBase
 
         var result = await _roleService.UpdateAsync(id, request);
 
-        return result.IsSuccess 
-            ? NoContent() 
+        return result.IsSuccess
+            ? NoContent()
             : result.ToProblem();
     }
 

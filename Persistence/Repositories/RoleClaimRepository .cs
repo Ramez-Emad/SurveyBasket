@@ -7,7 +7,7 @@ using Shared.Abstractions.Consts;
 namespace Persistence.Repositories;
 
 public class RoleClaimRepository(ApplicationDbContext _dbContext) : IRoleClaimRepository
-{  
+{
     public async Task AddRangeAsync(IEnumerable<IdentityRoleClaim<string>> claims)
     {
         await _dbContext.AddRangeAsync(claims);

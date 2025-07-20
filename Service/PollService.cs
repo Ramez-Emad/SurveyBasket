@@ -4,8 +4,8 @@ using Hangfire;
 using Mapster;
 using Service.Specifications;
 using ServiceAbstraction;
-using Shared.Contracts.Polls;
 using Shared.Abstractions;
+using Shared.Contracts.Polls;
 using Shared.Errors;
 
 public class PollService(IUnitOfWork unitOfWork, INotificationService _notificationService) : IPollService
@@ -42,13 +42,13 @@ public class PollService(IUnitOfWork unitOfWork, INotificationService _notificat
 
     public async Task<Result> UpdatePollAsync(int id, PollRequest request, CancellationToken cancellationToken = default)
     {
-      
+
         var existingPoll = await unitOfWork.PollRepository.GetByIdAsync(id, cancellationToken);
 
         if (existingPoll is null)
             return Result.Failure(PollErrors.PollNotFound);
 
-        var isTitleExists = await unitOfWork.PollRepository.TitleExistsAsync(request.Title, id , cancellationToken: cancellationToken);
+        var isTitleExists = await unitOfWork.PollRepository.TitleExistsAsync(request.Title, id, cancellationToken: cancellationToken);
 
         if (isTitleExists)
             return Result.Failure(PollErrors.DuplicatedPollTitle);

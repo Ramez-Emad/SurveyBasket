@@ -14,7 +14,7 @@ namespace Presentation.Controllers;
 
 public class AuthController(IAuthService _authService) : ControllerBase
 {
-   
+
     [HttpPost]
     public async Task<IActionResult> LoginAsync([FromBody] AuthLoginRequest request, CancellationToken cancellationToken)
     {
@@ -40,7 +40,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
         if (errorResult is not null)
             return errorResult;
 
-        var authResult = await _authService.GetRefreshTokenAsync(request.token , request.refreshToken , cancellationToken);
+        var authResult = await _authService.GetRefreshTokenAsync(request.token, request.refreshToken, cancellationToken);
 
         return authResult.IsSuccess
             ? Ok(authResult.Value)
@@ -55,10 +55,10 @@ public class AuthController(IAuthService _authService) : ControllerBase
         if (errorResult is not null)
             return errorResult;
 
-        var result = await _authService.RevokeRefreshTokenAsync(request.token, request.refreshToken ,cancellationToken);
+        var result = await _authService.RevokeRefreshTokenAsync(request.token, request.refreshToken, cancellationToken);
 
 
-        return result.IsSuccess 
+        return result.IsSuccess
             ? Ok("Refresh token revoked successfully")
             : result.ToProblem();
     }
@@ -88,8 +88,8 @@ public class AuthController(IAuthService _authService) : ControllerBase
 
         var result = await _authService.ConfirmEmailAsync(request);
 
-        return result.IsSuccess 
-            ? Ok() 
+        return result.IsSuccess
+            ? Ok()
             : result.ToProblem();
     }
 
@@ -104,8 +104,8 @@ public class AuthController(IAuthService _authService) : ControllerBase
 
         var result = await _authService.ResendConfirmationEmailAsync(request);
 
-        return result.IsSuccess 
-            ? Ok() 
+        return result.IsSuccess
+            ? Ok()
             : result.ToProblem();
     }
 
@@ -115,8 +115,8 @@ public class AuthController(IAuthService _authService) : ControllerBase
     {
         var result = await _authService.SendResetPasswordCodeAsync(request.Email);
 
-        return result.IsSuccess 
-            ? Ok() 
+        return result.IsSuccess
+            ? Ok()
             : result.ToProblem();
     }
 
@@ -125,8 +125,8 @@ public class AuthController(IAuthService _authService) : ControllerBase
     {
         var result = await _authService.ResetPasswordAsync(request);
 
-        return result.IsSuccess 
-            ? Ok() 
+        return result.IsSuccess
+            ? Ok()
             : result.ToProblem();
     }
 

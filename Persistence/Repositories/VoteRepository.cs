@@ -2,15 +2,7 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
-using Shared.Contracts.Results;
-using Shared.Abstractions;
-using Shared.Errors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistence.Repositories;
 public class VoteRepository(ApplicationDbContext dbContext) : GenericRepository<Vote>(dbContext), IVoteRepository

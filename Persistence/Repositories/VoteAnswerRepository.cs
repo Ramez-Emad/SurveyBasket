@@ -2,15 +2,10 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistence.Repositories;
-public class VoteAnswerRepository(ApplicationDbContext dbContext) : GenericRepository<VoteAnswer>(dbContext) , IVoteAnswerRepository
+public class VoteAnswerRepository(ApplicationDbContext dbContext) : GenericRepository<VoteAnswer>(dbContext), IVoteAnswerRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 

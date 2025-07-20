@@ -68,9 +68,10 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<FluentValidationAssemblyReference>();
         //   .AddFluentValidationAutoValidation();
 
-        services.Configure<MailSettings>(
-                        configuration.GetSection(MailSettings.SectionName));
-
+        services.AddOptions<MailSettings>()
+        .BindConfiguration(MailSettings.SectionName)
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

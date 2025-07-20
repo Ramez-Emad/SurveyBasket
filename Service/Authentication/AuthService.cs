@@ -1,23 +1,19 @@
-﻿using Domain.Contracts;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Hangfire;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Service.Email;
 using ServiceAbstraction;
-using Shared.Contracts.Authentication;
 using Shared.Abstractions;
 using Shared.Abstractions.Consts;
+using Shared.Contracts.Authentication;
 using Shared.Errors;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Service.Authentication;
 public class AuthService(
@@ -72,16 +68,16 @@ public class AuthService(
             return Result.Success(response);
         }
 
-        var error = result.IsNotAllowed 
-                    ? UserErrors.EmailNotConfirmed 
-                    : result.IsLockedOut 
+        var error = result.IsNotAllowed
+                    ? UserErrors.EmailNotConfirmed
+                    : result.IsLockedOut
                     ? UserErrors.LockedUser
                     : UserErrors.InvalidCredentials;
 
         return Result.Failure<AuthResponse>(error);
     }
 
-    
+
     public async Task<Result<AuthResponse>> GetRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
     {
 
@@ -95,7 +91,7 @@ public class AuthService(
         if (user.IsDisabled)
             return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
 
-        if(user.LockoutEnd > DateTime.UtcNow)
+        if (user.LockoutEnd > DateTime.UtcNow)
             return Result.Failure<AuthResponse>(UserErrors.LockedUser);
 
         if (user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken && x.IsActive) is not { } userRefreshToken)
@@ -107,7 +103,7 @@ public class AuthService(
         var (roles, permisssions) = await userService.GetUserRolesAndPermissions(user, cancellationToken);
 
 
-        var (newToken, expiresIn) = _jwtProvider.GenerateToken(user , roles, permisssions);
+        var (newToken, expiresIn) = _jwtProvider.GenerateToken(user, roles, permisssions);
         var newRefreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
 
@@ -163,16 +159,16 @@ public class AuthService(
 
     public async Task<Result> RegisterUserAsync(RegisterRequest request, CancellationToken cancellationToken)
     {
-       
+
         // Check if user already exists
 
         if (await _userManager.FindByEmailAsync(request.Email) is { })
             return Result.Failure(UserErrors.DuplicatedEmail);
 
         // create new user
-    
+
         var applicationUser = request.Adapt<ApplicationUser>();
-   
+
 
         var result = await _userManager.CreateAsync(applicationUser, request.Password);
 
@@ -196,7 +192,7 @@ public class AuthService(
 
         await SendConfirmationEmail(applicationUser, confirmationCode);
 
-        logger.LogInformation("User {Email} registered successfully.UserId {userId} Confirmation code: {code}", request.Email, applicationUser.Id , confirmationCode);
+        logger.LogInformation("User {Email} registered successfully.UserId {userId} Confirmation code: {code}", request.Email, applicationUser.Id, confirmationCode);
 
         return Result.Success();
     }
@@ -339,6 +335,6 @@ public class AuthService(
         await Task.CompletedTask;
     }
 
-   
+
 }
 

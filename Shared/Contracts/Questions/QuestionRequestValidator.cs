@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Shared.Contracts.Questions;
 
 namespace Shared.Contracts.Questions;
 

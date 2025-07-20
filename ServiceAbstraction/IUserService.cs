@@ -1,6 +1,6 @@
 ﻿using Domain.Entities;
-using Shared.Contracts.Users;
 using Shared.Abstractions;
+using Shared.Contracts.Users;
 
 namespace ServiceAbstraction;
 public interface IUserService

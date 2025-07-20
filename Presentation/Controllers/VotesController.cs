@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Presentation.Extensions;
 using ServiceAbstraction;
-using Shared.Contracts.Votes;
 using Shared.Abstractions.Consts;
-using Microsoft.AspNetCore.RateLimiting;
+using Shared.Contracts.Votes;
 
 namespace Presentation.Controllers;
 
@@ -12,7 +12,7 @@ namespace Presentation.Controllers;
 [Route("api/polls/{pollId}/vote")]
 [Authorize(Roles = DefaultRoles.Member)]
 [EnableRateLimiting(RateLimiters.Concurrency)]
-public class VotesController(IVoteService _voteService , IQuestionService _questionService ) : ControllerBase
+public class VotesController(IVoteService _voteService, IQuestionService _questionService) : ControllerBase
 {
     [HttpGet("")]
     public async Task<IActionResult> Start([FromRoute] int pollId, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public class VotesController(IVoteService _voteService , IQuestionService _quest
     [HttpPost("")]
     public async Task<IActionResult> Vote([FromRoute] int pollId, [FromBody] VoteRequest request, CancellationToken cancellationToken)
     {
-        var errorResult =  await this.ValidateAsync(request, cancellationToken);
+        var errorResult = await this.ValidateAsync(request, cancellationToken);
 
         if (errorResult is not null)
             return errorResult;

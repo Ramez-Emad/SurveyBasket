@@ -27,8 +27,8 @@ public class UsersController(IUserService userService) : ControllerBase
     {
         var result = await _userService.GetAsync(id);
 
-        return result.IsSuccess 
-            ? Ok(result.Value) 
+        return result.IsSuccess
+            ? Ok(result.Value)
             : result.ToProblem();
     }
 
@@ -43,8 +43,8 @@ public class UsersController(IUserService userService) : ControllerBase
 
         var result = await _userService.AddAsync(request, cancellationToken);
 
-        return result.IsSuccess 
-            ? CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value) 
+        return result.IsSuccess
+            ? CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value)
             : result.ToProblem();
     }
 
@@ -59,8 +59,8 @@ public class UsersController(IUserService userService) : ControllerBase
 
         var result = await _userService.UpdateAsync(id, request, cancellationToken);
 
-        return result.IsSuccess 
-            ? NoContent() 
+        return result.IsSuccess
+            ? NoContent()
             : result.ToProblem();
     }
 

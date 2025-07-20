@@ -10,10 +10,10 @@ using ServiceAbstraction;
 using Shared.Abstractions.Consts;
 
 namespace Service;
-public class NotificationService( UserManager<ApplicationUser> _userManager,ILogger<NotificationService> logger ,IUnitOfWork unitOfWork  ,IHttpContextAccessor _httpContextAccessor , IEmailSender _emailSender) : INotificationService
+public class NotificationService(UserManager<ApplicationUser> _userManager, ILogger<NotificationService> logger, IUnitOfWork unitOfWork, IHttpContextAccessor _httpContextAccessor, IEmailSender _emailSender) : INotificationService
 {
 
-    public  async Task SendNewPollsNotification(int? pollId = null)
+    public async Task SendNewPollsNotification(int? pollId = null)
     {
 
         IEnumerable<Poll> polls = [];
@@ -30,7 +30,7 @@ public class NotificationService( UserManager<ApplicationUser> _userManager,ILog
 
         var users = await _userManager.GetUsersInRoleAsync(DefaultRoles.Member);
 
-       var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
+        var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
 
 
         foreach (var poll in polls)

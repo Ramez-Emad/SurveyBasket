@@ -2,16 +2,10 @@
 using Domain.Entities;
 using Service.Specifications;
 using ServiceAbstraction;
-using Shared.Contracts.Results;
 using Shared.Abstractions;
 using Shared.Contracts.Results;
 using Shared.Errors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Service;
 public class ResultService(IUnitOfWork _unitOfWork) : IResultService
@@ -82,14 +76,16 @@ public class ResultService(IUnitOfWork _unitOfWork) : IResultService
 
                         groupBySelector: x => new { x.Question.Content, AnswerId = x.Answer.Id, AnswerContent = x.Answer.Content },
 
-                        resultSelector: g => new {
-                                                    g.Key.Content,
-                                                    g.Key.AnswerContent,
-                                                    Count =g.Count() },
+                        resultSelector: g => new
+                        {
+                            g.Key.Content,
+                            g.Key.AnswerContent,
+                            Count = g.Count()
+                        },
                         cancellationToken
                     );
 
-        var response = allAnswers.GroupBy(g=> g.Content)
+        var response = allAnswers.GroupBy(g => g.Content)
                                  .Select(g => new VotesPerQuestionResponse(
                                      g.Key,
                                      g.Select(x => new VotesPerAnswerResponse(

@@ -18,7 +18,7 @@ public class QuestionService(IUnitOfWork _unitOfWork, HybridCache hybridCache) :
     private readonly HybridCache _hybridCache = hybridCache;
     private const string _cachePrefix = "AvailableQuestions";
 
-    public async Task<Result<PaginatedResult<QuestionResponse>>> GetQuestionsAsync(int pollId, QuestionQueryParams queryParams , CancellationToken cancellationToken = default)
+    public async Task<Result<PaginatedResult<QuestionResponse>>> GetQuestionsAsync(int pollId, QuestionQueryParams queryParams, CancellationToken cancellationToken = default)
     {
         var pollExists = await _unitOfWork.PollRepository.GetByIdAsync(pollId, cancellationToken);
 
@@ -42,7 +42,7 @@ public class QuestionService(IUnitOfWork _unitOfWork, HybridCache hybridCache) :
                                                                 totalCount,
                                                                 questionResponses);
 
-                                                
+
 
         return Result.Success(response);
     }
@@ -61,7 +61,7 @@ public class QuestionService(IUnitOfWork _unitOfWork, HybridCache hybridCache) :
         if (userHasVoted)
             return Result.Failure<IEnumerable<QuestionResponse>>(VoteErrors.DuplicatedVote);
 
-        
+
 
 
         string cacheKey = $"{_cachePrefix}-{pollId}";

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Service.Email;
+﻿namespace Service.Email;
 public static class EmailBodyBuilder
 {
     public static string GenerateEmailBody(string template, Dictionary<string, string> templateModel)

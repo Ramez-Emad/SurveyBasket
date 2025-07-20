@@ -2,9 +2,6 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
-using Shared.Contracts.Questions;
-using Shared.Abstractions;
-using Shared.Errors;
 
 namespace Persistence.Repositories;
 public class PollRepository(ApplicationDbContext dbContext) : GenericRepository<Poll>(dbContext), IPollRepository
@@ -14,9 +11,9 @@ public class PollRepository(ApplicationDbContext dbContext) : GenericRepository<
     public async Task<bool> IsPollAvailable(int pollId, CancellationToken cancellationToken = default)
     {
         var pollIsExists = await _dbContext.Polls.AnyAsync(
-                                                            x => x.Id == pollId 
-                                                            && x.IsPublished 
-                                                            && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow) 
+                                                            x => x.Id == pollId
+                                                            && x.IsPublished
+                                                            && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow)
                                                             && x.EndsAt >= DateOnly.FromDateTime(DateTime.UtcNow), cancellationToken);
 
         return pollIsExists;

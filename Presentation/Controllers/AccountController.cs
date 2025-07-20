@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Presentation.Extensions;
 using ServiceAbstraction;
 using Shared.Contracts.Users;
-using System.Threading;
 
 namespace Presentation.Controllers;
 
@@ -35,7 +34,7 @@ public class AccountController(IUserService _userService) : ControllerBase
     }
 
     [HttpPut("change-password")]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request , CancellationToken cancellationToken)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
     {
         var errorsResult = await this.ValidateAsync(request, cancellationToken);
 
@@ -44,8 +43,8 @@ public class AccountController(IUserService _userService) : ControllerBase
 
         var result = await _userService.ChangePasswordAsync(User.GetUserId()!, request);
 
-        return result.IsSuccess 
-            ? NoContent() 
+        return result.IsSuccess
+            ? NoContent()
             : result.ToProblem();
     }
 

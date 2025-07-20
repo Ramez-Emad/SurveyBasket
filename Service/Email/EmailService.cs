@@ -4,14 +4,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Service.Email;
-public class EmailService (IOptions<MailSettings> mailSettings, ILogger<EmailService> _logger) : IEmailSender
+public class EmailService(IOptions<MailSettings> mailSettings, ILogger<EmailService> _logger) : IEmailSender
 {
     private readonly MailSettings _mailSettings = mailSettings.Value;
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
@@ -35,7 +30,7 @@ public class EmailService (IOptions<MailSettings> mailSettings, ILogger<EmailSer
 
         _logger.LogInformation("Sending email to {email}", email);
 
-            await smtp.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
+        await smtp.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
         smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
         await smtp.SendAsync(message);
         smtp.Disconnect(true);

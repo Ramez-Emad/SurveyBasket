@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Shared.Contracts.Votes;
 
 namespace Shared.Contracts.Votes;
 
