@@ -7,9 +7,10 @@ using Microsoft.Extensions.Logging;
 using Service.Email;
 using Service.Specifications;
 using ServiceAbstraction;
+using Shared.Abstractions.Consts;
 
 namespace Service;
-public class NotificationService(ILogger<NotificationService> logger ,IUnitOfWork unitOfWork  ,IHttpContextAccessor _httpContextAccessor , IEmailSender _emailSender) : INotificationService
+public class NotificationService( UserManager<ApplicationUser> _userManager,ILogger<NotificationService> logger ,IUnitOfWork unitOfWork  ,IHttpContextAccessor _httpContextAccessor , IEmailSender _emailSender) : INotificationService
 {
 
     public  async Task SendNewPollsNotification(int? pollId = null)
@@ -27,7 +28,7 @@ public class NotificationService(ILogger<NotificationService> logger ,IUnitOfWor
             polls = await unitOfWork.PollRepository.GetAllAsync(spec);
         }
 
-       var users = await unitOfWork.UserRepository.GetAllAsync();
+        var users = await _userManager.GetUsersInRoleAsync(DefaultRoles.Member);
 
        var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
 
