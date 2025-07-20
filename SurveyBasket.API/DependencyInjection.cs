@@ -6,12 +6,10 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Persistence.Data;
 using Persistence.Repositories;
@@ -25,6 +23,7 @@ using ServiceAbstraction;
 using Shared;
 using Shared.Abstractions.Consts;
 using SurveyBasket.Web.Health;
+using SurveyBasket.Web.OpenApiTransformers;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -50,7 +49,11 @@ public static class DependencyInjection
             )
         );
 
-        services.AddOpenApi();
+        services.AddEndpointsApiExplorer()
+                .AddOpenApi(opt =>
+                {
+                    opt.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+                });
 
         services.AddAuthConfig(configuration);
 

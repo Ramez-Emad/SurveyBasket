@@ -3,6 +3,7 @@ using HangfireBasicAuthenticationFilter;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Caching.Hybrid;
+using Scalar.AspNetCore;
 using Serilog;
 using ServiceAbstraction;
 using SurveyBasket.Web;
@@ -41,7 +42,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+    app.MapScalarApiReference();
 }
 
 app.UseSerilogRequestLogging();
@@ -64,7 +65,7 @@ var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 using var scope = scopeFactory.CreateScope();
 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-RecurringJob.AddOrUpdate("SendNewPollsNotification", () => notificationService.SendNewPollsNotification(null), Cron.Daily);
+RecurringJob.AddOrUpdate("SendNewPollsNotification", () => notificationService.SendNewPollsNotification(null), Cron.Daily); 
 
 app.UseHttpsRedirection();
 

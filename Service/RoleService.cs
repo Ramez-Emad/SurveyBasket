@@ -18,10 +18,10 @@ using System.Threading.Tasks;
 namespace Service;
 public class RoleService(RoleManager<ApplicationRole> _roleManager , IUnitOfWork _unitOfWork) : IRoleService
 {
-    public  async Task<IEnumerable<RoleResponse>> GetAllAsync(bool? includeDisabled = false, CancellationToken cancellationToken = default)
+    public  async Task<IEnumerable<RoleResponse>> GetAllAsync(bool includeDisabled = false, CancellationToken cancellationToken = default)
     {
         var roles =await _roleManager.Roles
-            .Where(r => (includeDisabled.HasValue && includeDisabled.Value) || !r.IsDeleted)
+            .Where(r => !r.IsDefault && (includeDisabled || !r.IsDeleted) )
             .Select(r => new RoleResponse(r.Id, r.Name!, r.IsDeleted))
             .ToListAsync(cancellationToken);
 

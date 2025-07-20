@@ -53,10 +53,7 @@ public class PollService(IUnitOfWork unitOfWork, INotificationService _notificat
         if (isTitleExists)
             return Result.Failure(PollErrors.DuplicatedPollTitle);
 
-        existingPoll.Title = request.Title;
-        existingPoll.Summary = request.Summary;
-        existingPoll.StartsAt = request.StartsAt;
-        existingPoll.EndsAt = request.EndsAt;
+        request.Adapt(existingPoll);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
